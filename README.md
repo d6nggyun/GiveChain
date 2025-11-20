@@ -25,6 +25,6 @@
 
 # 🛠️ 기술 구성
 - Backend: Spring Boot, MySQL
-- Frontend: Next.js, Ethers.js
+- Frontend: Next.js, Tailwind CSS, Web3Auth, Ethers.js
 - Blockchain: Solidity, IPFS
 - DevOps: Docker, AWS, Vercel
