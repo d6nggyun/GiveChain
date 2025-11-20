@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///Users/dongkyun/Project/GiveChain/frontend/givechain-next/app/main/layout.tsx"],"sourcesContent":["// app/(main)/layout.tsx\n\"use client\";\n\nimport Navbar from \"@/components/Navbar\";\n\nexport default function MainLayout({\n  children,\n}: {\n  children: React.ReactNode;\n}) {\n  return (\n    <div className=\"min-h-screen flex flex-col bg-[#050816] text-white\">\n      <Navbar />\n      <main className=\"flex-1 max-w-5xl mx-auto w-full px-6 py-10\">\n        {children}\n      </main>\n    </div>\n  );\n}"],"names":[],"mappings":"AAAA,wBAAwB;;;;;;AAGxB;AAFA;;;AAIe,SAAS,WAAW,EACjC,QAAQ,EAGT;IACC,qBACE,8OAAC;QAAI,WAAU;;0BACb,8OAAC,gIAAM;;;;;0BACP,8OAAC;gBAAK,WAAU;0BACb;;;;;;;;;;;;AAIT"}}]
+}
