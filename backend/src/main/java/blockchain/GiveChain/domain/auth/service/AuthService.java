@@ -21,11 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AuthService {
 
-    private MemberRepository memberRepository;
-    private JwtProvider jwtProvider;
+    private final MemberRepository memberRepository;
+    private final JwtProvider jwtProvider;
 
     @Transactional
-    public OAuthLoginResponse signup(@Valid OAuthLoginRequest request, HttpServletResponse response) {
+    public OAuthLoginResponse login(@Valid OAuthLoginRequest request, HttpServletResponse response) {
         Member member = memberRepository.findByProviderAndProviderMemberId(request.provider(), request.providerMemberId())
                 .map(existing -> {
                     existing.updateProfile(request.email(), request.name(), request.walletAddress());
@@ -50,7 +50,7 @@ public class AuthService {
 
         jwtProvider.deleteRefreshToken(studentRefreshToken);
 
-        return jwtProvider.generateTokenFromMember(member, response);
+        return jwtProvider.authenticateAndGenerateToken(member, response);
     }
 
     @Transactional
@@ -58,6 +58,7 @@ public class AuthService {
         RefreshToken refreshToken = jwtProvider.findRefreshTokenByEmail(member.getEmail());
 
         jwtProvider.deleteRefreshToken(refreshToken);
+        CookieUtil.deleteCookie(response, "accessToken");
         CookieUtil.deleteCookie(response, "refreshToken");
     }
 
@@ -67,6 +68,7 @@ public class AuthService {
 
         jwtProvider.deleteRefreshTokenByEmail(member.getEmail());
         memberRepository.delete(memberToDelete);
+        CookieUtil.deleteCookie(response, "accessToken");
         CookieUtil.deleteCookie(response, "refreshToken");
     }
 

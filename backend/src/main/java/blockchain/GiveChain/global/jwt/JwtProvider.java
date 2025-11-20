@@ -59,24 +59,19 @@ public class JwtProvider {
         String accessToken = createAccessToken(authentication.getName(), authorities);
         String refreshToken = createRefreshToken();
 
+        CookieUtil.setCookie(response, "accessToken", accessToken, (int) (ACCESS_TOKEN_EXPIRED_TIME / 1000));
         CookieUtil.setCookie(response, "refreshToken", refreshToken, (int) (REFRESH_TOKEN_EXPIRED_TIME / 1000));
 
-        refreshTokenRepository.save(RefreshToken.builder().member(member).refreshToken(refreshToken).build());
+        RefreshToken newRefreshToken = refreshTokenRepository.findByMemberId(member.getId())
+                .map(exist -> {
+                    exist.updateToken(refreshToken);
+                    return exist;
+                })
+                .orElseGet(() -> RefreshToken.of(member, refreshToken));
 
-        return OAuthLoginResponse.of(member, accessToken, refreshToken);
-    }
+        refreshTokenRepository.save(newRefreshToken);
 
-    public OAuthLoginResponse generateTokenFromMember(Member member, HttpServletResponse response) {
-        String email = member.getEmail();
-        String authorities = "ROLE_USER";
-        String accessToken = createAccessToken(email, authorities);
-        String refreshToken = createRefreshToken();
-
-        CookieUtil.setCookie(response, "refreshToken", refreshToken, (int) (REFRESH_TOKEN_EXPIRED_TIME / 1000));
-
-        refreshTokenRepository.save(RefreshToken.builder().member(member).refreshToken(refreshToken).build());
-
-        return OAuthLoginResponse.of(member, accessToken, refreshToken);
+        return OAuthLoginResponse.of(member);
     }
 
     public OAuthLoginResponse authenticateAndGenerateToken(Member member, HttpServletResponse response) {
@@ -86,10 +81,6 @@ public class JwtProvider {
                 memberDetail, null, memberDetail.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        if (refreshTokenRepository.findByEmail(member.getEmail()).isPresent()) {
-            refreshTokenRepository.deleteByEmail(member.getEmail());
-        }
 
         return generateToken(authentication, response);
     }

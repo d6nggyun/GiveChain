@@ -10,7 +10,7 @@ public class CookieUtil {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
-        cookie.setPath("/api/v1/auth");
+        cookie.setPath("/api");
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
     }
@@ -20,7 +20,7 @@ public class CookieUtil {
         Cookie cookie = new Cookie(name, null);
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
-        cookie.setPath("/api/v1/auth");
+        cookie.setPath("/api");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }

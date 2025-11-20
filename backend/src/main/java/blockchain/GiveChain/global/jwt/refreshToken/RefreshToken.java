@@ -3,7 +3,6 @@ package blockchain.GiveChain.global.jwt.refreshToken;
 import blockchain.GiveChain.domain.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,10 +35,17 @@ public class RefreshToken {
         this.createdAt = LocalDateTime.now();
     }
 
-    @Builder
-    private RefreshToken(Member member, String refreshToken) {
-        this.memberId = member.getId();
-        this.email = member.getEmail();
+    private RefreshToken(Long memberId, String email, String refreshToken) {
+        this.memberId = memberId;
+        this.email = email;
+        this.refreshToken = refreshToken;
+    }
+
+    public static RefreshToken of(Member member, String refreshToken) {
+        return new RefreshToken(member.getId(), member.getEmail(), refreshToken);
+    }
+
+    public void updateToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 }

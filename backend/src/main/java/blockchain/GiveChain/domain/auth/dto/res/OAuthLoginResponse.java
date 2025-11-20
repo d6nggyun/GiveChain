@@ -10,15 +10,10 @@ public record OAuthLoginResponse(
 
         String email,
 
-        String walletAddress,
-
-        String accessToken,
-
-        String refreshToken
+        String walletAddress
 
 ) {
-    public static OAuthLoginResponse of(Member member, String accessToken, String refreshToken) {
-        return new OAuthLoginResponse(member.getId(), member.getName(), member.getEmail(), member.getWalletAddress(),
-                accessToken, refreshToken);
+    public static OAuthLoginResponse of(Member member) {
+        return new OAuthLoginResponse(member.getId(), member.getName(), member.getEmail(), member.getWalletAddress());
     }
 }

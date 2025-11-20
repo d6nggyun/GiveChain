@@ -6,6 +6,7 @@ import blockchain.GiveChain.global.exception.ErrorResponseEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,8 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String jwt = resolveToken(request);
         String requestURI = request.getRequestURI();
 
@@ -62,10 +64,19 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7).trim();
         }
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
         return null;
     }
 
@@ -80,15 +91,7 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private final String[] excludedUris = {
-            "/api/v1/auth/signup",
-            "/api/v1/auth/login",
-            "/api/v1/auth/login/test",
-            "/api/v1/auth/refresh",
-            "/api/v1/auth/nickname/**",
-            "/api/v1/images/**",
-            "/images/**",
-            "/favicon.ico",
-            "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/api/auth/login",
+            "/api/auth/refresh"
     };
 }

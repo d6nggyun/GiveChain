@@ -21,9 +21,9 @@ public class AuthController {
 
     // OAuth 회원가입 및 로그인
     @PostMapping("/login")
-    public ResponseEntity<OAuthLoginResponse> signup(@Valid @RequestBody OAuthLoginRequest request,
+    public ResponseEntity<OAuthLoginResponse> login(@Valid @RequestBody OAuthLoginRequest request,
                                                      HttpServletResponse response) {
-        return ResponseEntity.ok(authService.signup(request, response));
+        return ResponseEntity.ok(authService.login(request, response));
     }
 
     // 토큰 재발급
