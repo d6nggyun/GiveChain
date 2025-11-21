@@ -1,6 +1,7 @@
 package blockchain.GiveChain.domain.member.domain;
 
 import blockchain.GiveChain.domain.member.enums.Role;
+import blockchain.GiveChain.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,11 +16,12 @@ import java.util.Optional;
                })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
@@ -34,26 +36,33 @@ public class Member {
     @Column(name = "wallet_address", nullable = false, unique = true)
     private String walletAddress;
 
+    private String country;
+
     @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private Member (String name, String email, String provider, String providerMemberId, String walletAddress, Role role) {
+    private Member (String name, String email, String provider, String providerMemberId, String walletAddress, String country, Role role) {
         this.name = name;
         this.email = email;
         this.provider = provider;
         this.providerMemberId = providerMemberId;
         this.walletAddress = walletAddress;
+        this.country = country;
         this.role = role;
     }
 
     public static Member of(String name, String email, String provider, String providerMemberId, String walletAddress) {
-        return new Member(name, email, provider, providerMemberId, walletAddress, Role.USER);
+        return new Member(name, email, provider, providerMemberId, walletAddress, null, Role.USER);
     }
 
     public void updateProfile(String email, String name, String walletAddress) {
         this.email = Optional.ofNullable(email).orElse(this.email);
         this.name = Optional.ofNullable(name).orElse(this.name);
         this.walletAddress = Optional.ofNullable(walletAddress).orElse(this.walletAddress);
+    }
+
+    public void updateCountry(String country) {
+        this.country = country;
     }
 }
