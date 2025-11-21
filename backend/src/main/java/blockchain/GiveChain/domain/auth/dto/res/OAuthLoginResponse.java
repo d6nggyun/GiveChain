@@ -10,10 +10,19 @@ public record OAuthLoginResponse(
 
         String email,
 
-        String walletAddress
+        String walletAddress,
+
+        boolean isNeededCountryInfo
 
 ) {
     public static OAuthLoginResponse of(Member member) {
-        return new OAuthLoginResponse(member.getId(), member.getName(), member.getEmail(), member.getWalletAddress());
+        boolean isNeededCountryInfo = member.getCountry() == null || member.getCountry().isEmpty();
+
+        return new OAuthLoginResponse(
+                member.getId(),
+                member.getName(),
+                member.getEmail(),
+                member.getWalletAddress(),
+                isNeededCountryInfo);
     }
 }

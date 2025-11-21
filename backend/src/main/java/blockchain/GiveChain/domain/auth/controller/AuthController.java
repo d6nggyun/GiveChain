@@ -28,7 +28,7 @@ public class AuthController {
 
     // 토큰 재발급
     @PostMapping("/refresh")
-    public ResponseEntity<OAuthLoginResponse> refresh(@CookieValue(value = "refreshToken", required = true) String refreshToken,
+    public ResponseEntity<OAuthLoginResponse> refresh(@CookieValue(value = "refreshToken") String refreshToken,
                                                         HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.refresh(refreshToken, response));
     }

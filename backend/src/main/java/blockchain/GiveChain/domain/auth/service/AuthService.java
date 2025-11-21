@@ -32,7 +32,10 @@ public class AuthService {
                     return existing;
                 })
                 .orElseGet(() -> {
-                    Member newMember = Member.of(request.name(), request.email(), request.provider(), request.providerMemberId(), request.walletAddress());
+                    Member newMember = Member.of(
+                            request.name(), request.email(),
+                            request.provider(), request.providerMemberId(),
+                            request.walletAddress());
                     return memberRepository.save(newMember);
                 });
 

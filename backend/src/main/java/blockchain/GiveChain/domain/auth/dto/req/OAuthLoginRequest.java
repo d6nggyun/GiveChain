@@ -13,6 +13,7 @@ public record OAuthLoginRequest(
         @NotBlank
         String email,
 
+        @NotBlank
         String name,
 
         @NotBlank
