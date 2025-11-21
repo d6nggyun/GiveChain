@@ -18,7 +18,7 @@ export default function BadgePage() {
         {mockBadges.map((badge) => (
           <div
             key={badge.id}
-            className="bg-[#0b1220] rounded-2xl border border-white/10 p-5 flex flex-col gap-2"
+            className="bg-[#0b1220] rounded-2xl bg-gradient-to-br from-slate-800/90 via-slate-900/90 to-slate-800/90 border border-white/10 p-5 flex flex-col gap-2"
           >
             <div className="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-sm">
               🏅

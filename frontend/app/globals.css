@@ -18,7 +18,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
+  background: radial-gradient(circle at top, #1f2937 0, #111827 55%, #020617 100%);
   color: #e5e7eb;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;

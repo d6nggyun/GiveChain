@@ -1,53 +1,97 @@
+// components/Navbar.tsx
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { logoutRequest } from "@/lib/api";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+
+const tabs = [
+  { href: "/main", label: "기부" },
+  { href: "/main/ranking", label: "랭킹" },
+  { href: "/main/badges", label: "배지" },
+];
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, logout, needCountryInfo } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await logoutRequest();  // 서버 로그아웃 요청
+      // 서버 로그아웃 호출 (있다면)
+      await fetch("http://localhost:8080/api/auth/logout", {
+        method: "DELETE",
+        credentials: "include",
+      });
     } catch (e) {
-      console.error("로그아웃 실패:", e);
+      console.error("로그아웃 API 실패:", e);
+    } finally {
+      logout();
     }
-
-    logout(); // 클라이언트 로그아웃
   };
 
   return (
-    <header className="border-b border-gray-800 bg-[#0d1117]">
-      <nav className="max-w-4xl mx-auto flex items-center justify-between px-4 py-3">
-        <Link href="/main" className="text-lg font-bold text-indigo-400">GiveChain</Link>
+    <header className="border-b border-[#1e2135] bg-[#050816]">
+      <nav className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
+        {/* 🔹 로고를 다시 Link로 변경 → 클릭하면 /main 이동 */}
+        <Link
+          href="/main"
+          className="text-lg font-bold text-[#6B8DFF] hover:opacity-90"
+        >
+          GiveChain
+        </Link>
 
-        <ul className="flex items-center gap-6 text-sm font-medium">
-          <li><Link href="/main" className="text-gray-300 hover:text-white">기부</Link></li>
-          <li><Link href="/main/ranking" className="text-gray-300 hover:text-white">랭킹</Link></li>
-          <li><Link href="/main/badges" className="text-gray-300 hover:text-white">배지</Link></li>
+        {/* 오른쪽 영역: 탭 + 로그인/로그아웃 */}
+        <div className="flex items-center gap-6 text-sm font-medium">
+          {/* 나라 설정 필요 시, 탭 대신 안내 문구만 노출 */}
+          {needCountryInfo ? (
+            <span className="text-[11px] text-gray-400">
+              국가 설정을 완료하면 메뉴를 사용할 수 있어요.
+            </span>
+          ) : (
+            <ul className="flex items-center gap-6">
+              {tabs.map((tab) => {
+                const active = pathname === tab.href;
+                return (
+                  <li key={tab.href}>
+                    <Link
+                      href={tab.href}
+                      className={
+                        active
+                          ? "text-[#6B8DFF] border-b-2 border-[#6B8DFF] pb-1"
+                          : "text-gray-400 hover:text-gray-100 pb-1"
+                      }
+                    >
+                      {tab.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
 
+          {/* 로그인/로그아웃 버튼 영역 */}
           {user ? (
             <>
-              <span className="text-gray-400">{user.name}님</span>
+              <span className="text-gray-400 hidden sm:inline">
+                {user.name}님
+              </span>
               <button
                 onClick={handleLogout}
-                className="px-3 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="px-3 py-1 rounded-md bg-[#6B8DFF] hover:bg-[#5a7af0] text-white text-xs sm:text-sm"
               >
                 로그아웃
               </button>
             </>
           ) : (
-            <Link
-              href="/login"
-              className="px-3 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white"
+            <button
+              onClick={() => router.push("/login")}
+              className="px-3 py-1 rounded-md bg-[#6B8DFF] hover:bg-[#5a7af0] text-white text-xs sm:text-sm"
             >
               로그인
-            </Link>
+            </button>
           )}
-        </ul>
+        </div>
       </nav>
     </header>
   );
