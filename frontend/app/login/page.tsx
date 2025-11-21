@@ -5,11 +5,11 @@ import { LoginButton } from "@/components/LoginButton";
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#050816] via-slate-900 to-[#050816] text-white">
-      <div className="bg-[#0b1220]/90 backdrop-blur rounded-3xl shadow-2xl p-10 w-full max-w-xl border border-white/10">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#050816] via-slate-900 to-[#050816]c text-white">
+      <div className="bg-[#0b1220]/90 backdrop-blur rounded-3xl shadow-2xl p-10 w-full max-w-xl border border-white/10 text-white">
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold">
-            <span className="text-blue-400">Give</span>
+            <span className="text-blue-400 text-white">Give</span>
             <span className="text-indigo-300">Chain</span>
           </h1>
           <p className="mt-3 text-sm text-gray-300">

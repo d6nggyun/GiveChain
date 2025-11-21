@@ -2,10 +2,13 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
-type User = {
+export type User = {
+  id?: number;
   name: string;
   email: string;
   walletAddress: string;
+  accessToken?: string;
+  country?: string;
 };
 
 type AuthContextValue = {

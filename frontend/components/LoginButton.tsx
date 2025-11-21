@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { loginWithGoogle } from "@/lib/aaSdk";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
@@ -10,14 +11,17 @@ type BackendLoginResponse = {
   email: string;
   walletAddress: string;
   accessToken: string;
+  isNeededCountryInfo: boolean;
 };
 
 export const LoginButton = () => {
   const { setUser } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     console.log("[LoginButton] 클릭됨");
+    setLoading(true);
 
     try {
       const result = await loginWithGoogle();
@@ -36,7 +40,7 @@ export const LoginButton = () => {
             providerMemberId: result.providerUserId,
             email: result.email,
             name: result.name,
-            walletAddress: result.walletAddress
+            walletAddress: result.walletAddress,
           }),
         }
       );
@@ -58,17 +62,27 @@ export const LoginButton = () => {
         accessToken: userData.accessToken,
       });
 
-      router.push("/main");
+      if (userData.isNeededCountryInfo) {
+        router.push("/onboarding/country");
+      } else {
+        router.push("/main");
+      }
     } catch (e) {
       console.error("[LoginButton] login error:", e);
-      alert("로그인 중 오류가 발생했습니다. 콘솔을 확인해 주세요.");
+      alert("로그인 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <button className="gc-login-button" onClick={handleLogin}>
+    <button
+      className="gc-login-button disabled:opacity-60"
+      onClick={handleLogin}
+      disabled={loading}
+    >
       <span className="gc-google-icon">G</span>
-      <span>Google로 계속하기</span>
+      <span>{loading ? "로그인 중..." : "Google로 계속하기"}</span>
     </button>
   );
 };
