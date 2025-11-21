@@ -92,6 +92,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final String[] excludedUris = {
             "/api/auth/login",
-            "/api/auth/refresh"
+            "/api/auth/refresh",
+            "/api/rankings"
     };
 }

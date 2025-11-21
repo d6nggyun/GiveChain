@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(AUTH_URIS).permitAll()
+                        .requestMatchers(PUBLIC_URIS).permitAll()
                         .anyRequest().authenticated()
                 )
 
@@ -63,5 +64,9 @@ public class SecurityConfig {
     private static final String[] AUTH_URIS = {
             "/api/auth/login",
             "/api/auth/refresh"
+    };
+
+    private static final String[] PUBLIC_URIS = {
+            "/api/rankings"
     };
 }

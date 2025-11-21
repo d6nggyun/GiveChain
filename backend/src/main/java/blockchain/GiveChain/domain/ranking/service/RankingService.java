@@ -2,7 +2,6 @@ package blockchain.GiveChain.domain.ranking.service;
 
 import blockchain.GiveChain.domain.campaign.enums.CampaignCategory;
 import blockchain.GiveChain.domain.donation.repository.DonationRepository;
-import blockchain.GiveChain.domain.member.domain.Member;
 import blockchain.GiveChain.domain.member.domain.MemberDetail;
 import blockchain.GiveChain.domain.ranking.dto.res.CategoryRankingResponse;
 import blockchain.GiveChain.domain.ranking.dto.res.RankingCountryResponse;
@@ -24,15 +23,16 @@ public class RankingService {
     private final DonationRepository donationRepository;
 
     @Transactional(readOnly = true)
-    public RankingResponse getRankings(MemberDetail userDetails) {
-        Member member = userDetails.getMember();
+    public RankingResponse getRankings(MemberDetail memberDetail) {
+        Long memberId = getMemberId(memberDetail);
+        String memberCountry = getMemberCountry(memberDetail);
 
         List<RankingCountryResponse> countryRankings = donationRepository.findTop10CountryRankings().stream()
                 .limit(10)
                 .map(cr -> RankingCountryResponse.of(
                         cr.country(),
                         cr.totalDonationAmount(),
-                        cr.country().equals(member.getCountry())
+                        memberCountry != null && cr.country().equals(memberCountry)
                 )).toList();
 
         List<CategoryRankingResponse> categoryRankings = Arrays.stream(CampaignCategory.values())
@@ -44,7 +44,7 @@ public class RankingService {
                                     cr.memberName(),
                                     cr.memberCountry(),
                                     cr.totalDonationAmount(),
-                                    cr.memberId().equals(member.getId())
+                                    cr.memberId().equals(memberId)
                             )).toList();
 
                     return CategoryRankingResponse.of(category, memberRankings);
@@ -54,8 +54,8 @@ public class RankingService {
     }
 
     @Transactional(readOnly = true)
-    public List<RankingMemberResponse> getCountryRankings(MemberDetail userDetails) {
-        List<RankingMemberResponse> countryRankings = donationRepository.findTop10CountryMemberRankings(userDetails.getMember().getCountry());
+    public List<RankingMemberResponse> getCountryRankings(MemberDetail memberDetail) {
+        List<RankingMemberResponse> countryRankings = donationRepository.findTop10CountryMemberRankings(memberDetail.getMember().getCountry());
 
         return countryRankings.stream()
                 .limit(10)
@@ -64,7 +64,27 @@ public class RankingService {
                         cr.memberName(),
                         cr.memberCountry(),
                         cr.totalDonationAmount(),
-                        cr.memberId().equals(userDetails.getMember().getId())
+                        cr.memberId().equals(memberDetail.getMember().getId())
                 )).toList();
+    }
+
+    private Long getMemberId(MemberDetail memberDetail) {
+        Long memberId;
+        if (memberDetail != null) {
+            memberId = memberDetail.getMember().getId();
+        } else {
+            memberId = null;
+        }
+        return memberId;
+    }
+
+    private String getMemberCountry(MemberDetail memberDetail) {
+        String memberCountry;
+        if (memberDetail != null) {
+            memberCountry = memberDetail.getMember().getCountry();
+        } else {
+            memberCountry = null;
+        }
+        return memberCountry;
     }
 }

@@ -21,12 +21,12 @@ public class RankingController {
     private final RankingService rankingService;
 
     @GetMapping
-    public ResponseEntity<RankingResponse> getRankings(@AuthenticationPrincipal MemberDetail userDetails) {
-        return ResponseEntity.ok(rankingService.getRankings(userDetails));
+    public ResponseEntity<RankingResponse> getRankings(@AuthenticationPrincipal MemberDetail memberDetail) {
+        return ResponseEntity.ok(rankingService.getRankings(memberDetail));
     }
 
     @GetMapping("/country")
-    public ResponseEntity<List<RankingMemberResponse>> getCountryRankings(@AuthenticationPrincipal MemberDetail userDetails) {
-        return ResponseEntity.ok(rankingService.getCountryRankings(userDetails));
+    public ResponseEntity<List<RankingMemberResponse>> getCountryRankings(@AuthenticationPrincipal MemberDetail memberDetail) {
+        return ResponseEntity.ok(rankingService.getCountryRankings(memberDetail));
     }
 }

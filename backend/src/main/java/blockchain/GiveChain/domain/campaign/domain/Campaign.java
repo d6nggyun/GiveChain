@@ -1,5 +1,6 @@
 package blockchain.GiveChain.domain.campaign.domain;
 
+import blockchain.GiveChain.domain.campaign.enums.CampaignCategory;
 import blockchain.GiveChain.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -20,5 +21,6 @@ public class Campaign extends BaseTimeEntity {
 
     private String description;
 
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private CampaignCategory category;
 }
