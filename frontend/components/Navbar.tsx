@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image"; 
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
@@ -34,11 +35,17 @@ export default function Navbar() {
     <header className="border-b border-[#1e2135] bg-[#050816]">
       <nav className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
         {/* 🔹 로고를 다시 Link로 변경 → 클릭하면 /main 이동 */}
-        <Link
-          href="/main"
-          className="text-lg font-bold text-[#6B8DFF] hover:opacity-90"
-        >
-          GiveChain
+        <Link href="/main" className="flex items-center gap-2 hover:opacity-90">
+          <Image
+            src="/logo.png"   // public 폴더에 넣어둔 파일 이름
+            alt="GiveChain Logo"
+            width={32}
+            height={32}
+            className="rounded-md"
+          />
+          <span className="text-lg font-bold text-[#6B8DFF]">
+            GiveChain
+          </span>
         </Link>
 
         {/* 오른쪽 영역: 탭 + 로그인/로그아웃 */}
