@@ -9,14 +9,14 @@ export type User = {
   walletAddress: string;
   accessToken?: string;
   country?: string;
-  isNeededCountryInfo?: boolean;
+  isNeededAdditionalInfo?: boolean;
 };
 
 type AuthContextValue = {
   user: User | null;
   setUser: (u: User | null) => void;
   logout: () => void;
-  needCountryInfo: boolean;
+  needAdditionalInfo: boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -28,10 +28,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  const needCountryInfo = !!user && user.isNeededCountryInfo === true;
+  const needAdditionalInfo = !!user && user.isNeededAdditionalInfo === true;
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, needCountryInfo }}>
+    <AuthContext.Provider value={{ user, setUser, logout, needAdditionalInfo }}>
       {children}
     </AuthContext.Provider>
   );

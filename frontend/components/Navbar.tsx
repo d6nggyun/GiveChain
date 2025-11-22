@@ -15,7 +15,7 @@ const tabs = [
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout, needCountryInfo } = useAuth();
+  const { user, logout, needAdditionalInfo } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -51,9 +51,9 @@ export default function Navbar() {
         {/* 오른쪽 영역: 탭 + 로그인/로그아웃 */}
         <div className="flex items-center gap-6 text-sm font-medium">
           {/* 나라 설정 필요 시, 탭 대신 안내 문구만 노출 */}
-          {needCountryInfo ? (
+          {needAdditionalInfo ? (
             <span className="text-[11px] text-gray-400">
-              국가 설정을 완료하면 메뉴를 사용할 수 있어요.
+              프로필 설정을 완료하면 메뉴를 사용할 수 있어요
             </span>
           ) : (
             <ul className="flex items-center gap-6">

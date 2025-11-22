@@ -10,22 +10,22 @@ type Props = {
 };
 
 export default function RequireCountry({ children }: Props) {
-  const { needCountryInfo } = useAuth();
+  const { needAdditionalInfo } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!needCountryInfo) return;
+    if (!needAdditionalInfo) return;
 
-    if (pathname.startsWith("/main") && pathname !== "/country-onboarding") {
-      router.replace("/country-onboarding");
+    if (pathname.startsWith("/main") && pathname !== "/onboarding") {
+      router.replace("/onboarding");
     }
-  }, [needCountryInfo, pathname, router]);
+  }, [needAdditionalInfo, pathname, router]);
 
   if (
-    needCountryInfo &&
+    needAdditionalInfo &&
     pathname.startsWith("/main") &&
-    pathname !== "/country-onboarding"
+    pathname !== "/onboarding"
   ) {
     return null;
   }

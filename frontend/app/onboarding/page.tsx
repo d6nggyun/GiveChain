@@ -1,7 +1,7 @@
-// app/country-onboarding/page.tsx
+// app/onboarding/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
@@ -49,12 +49,29 @@ const COUNTRIES = [
 ];
 
 export default function CountryOnboardingPage() {
-  const [country, setCountry] = useState("KR");
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user, setUser } = useAuth();
 
+  const [name, setName] = useState(user?.name ?? "");
+  const [email, setEmail] = useState(user?.email ?? "");
+  const [country, setCountry] = useState("KR");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [user, router]);
+
   const handleSubmit = async () => {
+    if (!name.trim()) {
+      alert("이름을 입력해 주세요.");
+      return;
+    }
+    if (!email.trim()) {
+      alert("이메일을 입력해 주세요.");
+      return;
+    }
     if (!country) {
       alert("나라를 선택해 주세요.");
       return;
@@ -62,34 +79,39 @@ export default function CountryOnboardingPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/members/country`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ country }),
-      });
+      // 👉 실제 백엔드 엔드포인트에 맞게 URL 수정해줘
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/members/additional-info`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ name, email, country }),
+        }
+      );
 
       if (!res.ok) {
         const text = await res.text();
-        console.error("[CountryOnboarding] backend error:", text);
-        throw new Error("나라 정보 저장 실패");
+        console.error("[AdditionalOnboarding] backend error:", text);
+        throw new Error("추가 정보 저장 실패");
       }
 
       if (user) {
-        // ✅ 나라 입력하면 플래그 내리기
         setUser({
           ...user,
+          name,
+          email,
           country,
-          isNeededCountryInfo: false,
+          isNeededAdditionalInfo: false, // 🔥 플래그 내리기
         });
       }
 
       router.push("/main");
     } catch (e) {
       console.error(e);
-      alert("나라 정보를 저장하는 중 오류가 발생했습니다.");
+      alert("추가 정보를 저장하는 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -98,20 +120,42 @@ export default function CountryOnboardingPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#050816] text-white">
       <div className="bg-[#111321] rounded-2xl bg-gradient-to-br from-slate-800/90 via-slate-900/90 to-slate-800/90 px-8 py-10 max-w-md w-full shadow-2xl border border-[#262A40]">
-        <h1 className="text-2xl font-bold mb-2">거주 국가 설정</h1>
+        <h1 className="text-2xl font-bold mb-2">프로필 정보 설정</h1>
         <p className="text-sm text-gray-400 mb-6">
-          국가 정보를 설정하면 국가별 기부 랭킹, 통계 기능을 더 정확하게 제공할 수 있어요.
+          이름, 이메일, 거주 국가 정보를 설정하면, <br></br>
+          맞춤 기부 경험과 국가별 랭킹을 제공할 수 있어요.
         </p>
 
+        {/* 이름 */}
+        <label className="block text-sm mb-2 text-gray-300">이름</label>
+        <input
+          type="text"
+          className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6B8DFF] mb-4"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="이름을 입력하세요"
+        />
+
+        {/* 이메일 */}
+        <label className="block text-sm mb-2 text-gray-300">이메일</label>
+        <input
+          type="email"
+          className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6B8DFF] mb-4"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="이메일을 입력하세요"
+        />
+
+        {/* 국가 */}
         <label className="block text-sm mb-2 text-gray-300">거주 국가</label>
         <select
           className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6B8DFF] mb-6"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
         >
-          {COUNTRIES.map(group => (
+          {COUNTRIES.map((group) => (
             <optgroup key={group.group} label={group.group}>
-              {group.options.map(c => (
+              {group.options.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.label}
                 </option>

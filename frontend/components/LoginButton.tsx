@@ -11,8 +11,8 @@ type BackendLoginResponse = {
   email: string;
   walletAddress: string;
   accessToken: string;
-  isNeededCountryInfo: boolean | "true" | "false" | null;
   country?: string | null;
+  isNeededAdditionalInfo: boolean | "true" | "false";
 };
 
 export const LoginButton = () => {
@@ -55,8 +55,7 @@ export const LoginButton = () => {
       const userData: BackendLoginResponse = await backendResponse.json();
       console.log("[LoginButton] backend userData:", userData);
 
-      const isNeeded =
-        String(userData.isNeededCountryInfo) === "true";
+      const needAdditional = String(userData.isNeededAdditionalInfo) === "true";
 
       setUser({
         id: userData.id,
@@ -65,13 +64,13 @@ export const LoginButton = () => {
         walletAddress: userData.walletAddress,
         accessToken: userData.accessToken,
         country: userData.country ?? undefined,
-        isNeededCountryInfo: isNeeded,
+        isNeededAdditionalInfo: needAdditional,
       });
 
-      console.log("[LoginButton] isNeededCountryInfo(normalized):", isNeeded);
+      console.log("[LoginButton] isNeededCountryInfo(normalized):", needAdditional);
 
-      if (isNeeded) {
-        router.push("/country-onboarding");
+      if (needAdditional) {
+        router.push("/onboarding");
       } else {
         router.push("/main");
       }
