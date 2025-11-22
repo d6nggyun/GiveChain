@@ -62,7 +62,7 @@ export default function CountryOnboardingPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/members/country", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/members/country`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

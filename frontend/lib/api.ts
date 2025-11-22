@@ -1,6 +1,6 @@
 import type { RankingResponse } from "./rankingTypes";
 
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
 export const logoutRequest = async () => {
   const res = await fetch(`${BASE_URL}/api/auth/logout`, {
@@ -30,7 +30,7 @@ export async function fetchRankings(): Promise<RankingResponse> {
 }
 
 export async function fetchCountryRankings() {
-  const res = await fetch("http://localhost:8080/api/rankings/country", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rankings/country`, {
     method: "GET",
     credentials: "include",
   });

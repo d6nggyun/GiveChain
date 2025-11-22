@@ -29,7 +29,7 @@ export const LoginButton = () => {
       console.log("[LoginButton] Web3Auth result:", result);
 
       const backendResponse = await fetch(
-        "http://localhost:8080/api/auth/login",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
