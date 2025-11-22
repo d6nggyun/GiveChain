@@ -67,7 +67,7 @@ export const loginWithGoogle = async (): Promise<LoginResult> => {
   const providerType =
     userInfo.typeOfLogin ??
     userInfo.loginType ??
-    "google";
+    "none";
 
   const providerUserId =
     userInfo.verifierId ??
