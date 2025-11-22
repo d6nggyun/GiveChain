@@ -19,7 +19,8 @@ public class CorsConfig {
 
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000"));
+                "http://localhost:3000",
+                "https://givechain.vercel.app/"));
         configuration.addAllowedHeader("*");
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
