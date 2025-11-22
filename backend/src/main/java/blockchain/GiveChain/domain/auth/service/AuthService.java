@@ -26,7 +26,7 @@ public class AuthService {
 
     @Transactional
     public OAuthLoginResponse login(@Valid OAuthLoginRequest request, HttpServletResponse response) {
-        Member member = memberRepository.findByProviderAndProviderMemberId(request.provider(), request.providerMemberId())
+        Member member = memberRepository.findByWalletAddress(request.walletAddress())
                 .map(existing -> {
                     existing.updateProfile(request.email(), request.name(), request.walletAddress());
                     return existing;
@@ -58,7 +58,7 @@ public class AuthService {
 
     @Transactional
     public void logout(Member member, HttpServletResponse response) {
-        RefreshToken refreshToken = jwtProvider.findRefreshTokenByEmail(member.getEmail());
+        RefreshToken refreshToken = jwtProvider.findRefreshTokenByWalletAddress(member.getWalletAddress());
 
         jwtProvider.deleteRefreshToken(refreshToken);
         CookieUtil.deleteCookie(response, "accessToken");
@@ -69,7 +69,7 @@ public class AuthService {
     public void deleteMember(Member member, HttpServletResponse response) {
         Member memberToDelete = getMemberByEmail(member.getEmail());
 
-        jwtProvider.deleteRefreshTokenByEmail(member.getEmail());
+        jwtProvider.deleteRefreshTokenByWalletAddress(member.getEmail());
         memberRepository.delete(memberToDelete);
         CookieUtil.deleteCookie(response, "accessToken");
         CookieUtil.deleteCookie(response, "refreshToken");

@@ -160,8 +160,8 @@ public class JwtProvider {
                 });
     }
 
-    public RefreshToken findRefreshTokenByEmail(String email) {
-        return refreshTokenRepository.findByEmail(email)
+    public RefreshToken findRefreshTokenByWalletAddress(String walletAddress) {
+        return refreshTokenRepository.findByWalletAddress(walletAddress)
                 .orElseThrow(() -> {
                     log.warn("[RefreshToken 조회 실패] 저장된 토큰 없음");
                     return new CustomException(ErrorCode.JWT_NOT_FOUND);
@@ -179,7 +179,7 @@ public class JwtProvider {
         refreshTokenRepository.delete(refreshToken);
     }
 
-    public void deleteRefreshTokenByEmail(String email) {
-        refreshTokenRepository.deleteByEmail(email);
+    public void deleteRefreshTokenByWalletAddress(String walletAddress) {
+        refreshTokenRepository.deleteByWalletAddress(walletAddress);
     }
 }

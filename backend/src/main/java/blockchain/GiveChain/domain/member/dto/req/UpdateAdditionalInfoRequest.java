@@ -1,5 +1,6 @@
 package blockchain.GiveChain.domain.member.dto.req;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record UpdateAdditionalInfoRequest(
@@ -8,6 +9,7 @@ public record UpdateAdditionalInfoRequest(
         String name,
 
         @NotBlank
+        @Email
         String email,
 
         @NotBlank

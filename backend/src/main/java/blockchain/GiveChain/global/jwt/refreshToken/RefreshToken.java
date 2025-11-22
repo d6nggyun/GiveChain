@@ -18,14 +18,17 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 512)
+    private String refreshToken;
+
     @Column(name = "member_id", nullable = false, unique = true)
     private Long memberId;
 
     @Column(nullable = false, length = 20)
     private String email;
 
-    @Column(nullable = false, length = 512)
-    private String refreshToken;
+    @Column(name = "wallet_address", nullable = false, unique = true)
+    private String walletAddress;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -35,14 +38,15 @@ public class RefreshToken {
         this.createdAt = LocalDateTime.now();
     }
 
-    private RefreshToken(Long memberId, String email, String refreshToken) {
+    private RefreshToken(String refreshToken, Long memberId, String email, String walletAddress) {
+        this.refreshToken = refreshToken;
         this.memberId = memberId;
         this.email = email;
-        this.refreshToken = refreshToken;
+        this.walletAddress = walletAddress;
     }
 
     public static RefreshToken of(Member member, String refreshToken) {
-        return new RefreshToken(member.getId(), member.getEmail(), refreshToken);
+        return new RefreshToken(refreshToken, member.getId(), member.getEmail(), member.getWalletAddress());
     }
 
     public void updateToken(String refreshToken) {
