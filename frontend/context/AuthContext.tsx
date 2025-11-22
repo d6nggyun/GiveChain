@@ -9,7 +9,6 @@ export type User = {
   walletAddress: string;
   accessToken?: string;
   country?: string;
-  // 🔥 서버 플래그: 나라 정보가 필요한지 여부
   isNeededCountryInfo?: boolean;
 };
 
@@ -17,7 +16,6 @@ type AuthContextValue = {
   user: User | null;
   setUser: (u: User | null) => void;
   logout: () => void;
-  // 메뉴/가드에서 쓸 플래그 (오직 서버 값 기반)
   needCountryInfo: boolean;
 };
 
@@ -30,7 +28,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  // ✅ 오직 서버 플래그에만 의존해서 판단
   const needCountryInfo = !!user && user.isNeededCountryInfo === true;
 
   return (

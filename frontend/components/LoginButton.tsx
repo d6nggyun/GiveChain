@@ -55,11 +55,9 @@ export const LoginButton = () => {
       const userData: BackendLoginResponse = await backendResponse.json();
       console.log("[LoginButton] backend userData:", userData);
 
-      // 🔥 서버에서 온 값을 boolean으로 확실히 정규화
       const isNeeded =
         String(userData.isNeededCountryInfo) === "true";
 
-      // 🔥 Context에 서버 플래그까지 저장
       setUser({
         id: userData.id,
         name: userData.name,
@@ -72,9 +70,8 @@ export const LoginButton = () => {
 
       console.log("[LoginButton] isNeededCountryInfo(normalized):", isNeeded);
 
-      // 🔥 오직 서버 플래그에만 의존해서 라우팅
       if (isNeeded) {
-        router.push("/country-onboarding"); // ✅ 실제 파일 경로와 맞춤
+        router.push("/country-onboarding");
       } else {
         router.push("/main");
       }
