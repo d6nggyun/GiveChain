@@ -23,7 +23,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<OAuthLoginResponse> login(@Valid @RequestBody OAuthLoginRequest request,
                                                      HttpServletResponse response) {
-        return ResponseEntity.ok(authService.login(request, response));
+        return ResponseEntity.status(HttpStatus.OK).body(authService.login(request, response));
     }
 
     // 토큰 재발급

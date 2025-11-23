@@ -27,3 +27,7 @@ server:
 logging:
   file:
     path: /GiveChain/logs
+
+blockchain:
+  rpc-url: ${RPC_URL}
+  donation-contract-address: ${DONATION_CONTRACT_ADDRESS}

@@ -27,10 +27,6 @@ public class AuthService {
     @Transactional
     public OAuthLoginResponse login(@Valid OAuthLoginRequest request, HttpServletResponse response) {
         Member member = memberRepository.findByWalletAddress(request.walletAddress())
-                .map(existing -> {
-                    existing.updateProfile(request.email(), request.name(), request.walletAddress());
-                    return existing;
-                })
                 .orElseGet(() -> {
                     Member newMember = Member.of(
                             request.name(), request.email(),

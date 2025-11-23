@@ -5,6 +5,7 @@ import blockchain.GiveChain.domain.member.dto.req.UpdateAdditionalInfoRequest;
 import blockchain.GiveChain.domain.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,6 +24,6 @@ public class MemberController {
     public ResponseEntity<Void> updateAdditionalInfo(@AuthenticationPrincipal MemberDetail userDetails,
                                                          @Valid @RequestBody UpdateAdditionalInfoRequest updateAdditionalInfoRequest) {
         memberService.updateAdditionalInfo(userDetails, updateAdditionalInfoRequest);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
