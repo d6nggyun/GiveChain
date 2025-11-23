@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image"; 
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { disconnectWeb3 } from "@/lib/aaSdk";
 
 const tabs = [
   { href: "/main", label: "기부" },
@@ -19,7 +20,9 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      // 서버 로그아웃 호출 (있다면)
+      await disconnectWeb3();
+
+      // 서버 로그아웃 호출
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
         method: "DELETE",
         credentials: "include",
@@ -28,6 +31,7 @@ export default function Navbar() {
       console.error("로그아웃 API 실패:", e);
     } finally {
       logout();
+      router.push("/login");
     }
   };
 

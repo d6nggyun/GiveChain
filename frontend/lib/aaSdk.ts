@@ -88,4 +88,14 @@ export const loginWithGoogle = async (): Promise<LoginResult> => {
     email: userInfo.email ?? "",
     name: userInfo.name ?? "",
   };
-};
+}
+
+export async function disconnectWeb3() {
+  try {
+    if (web3auth) {
+      await web3auth.logout(); // Web3Auth 세션 로그아웃
+    }
+  } catch (e) {
+    console.error("[disconnectWeb3] Web3 로그아웃 실패:", e);
+  }
+}

@@ -1,5 +1,5 @@
 // app/main/page.tsx
-"use client";
+import DonateButton from "@/components/DonateButton";
 
 export default function MainHomePage() {
   return (
@@ -10,7 +10,7 @@ export default function MainHomePage() {
           Web3 지갑으로 손쉽게 기부하고, 기부 내역에 따라 배지를 획득해보세요.
         </p>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 mb-6">
           <span className="px-4 py-2 rounded-full bg-slate-900/80 text-sm text-slate-200 border border-white/10">
             ⛓️ 온체인 기부 영수증
           </span>
@@ -21,6 +21,9 @@ export default function MainHomePage() {
             🔎 투명한 기부 흐름
           </span>
         </div>
+
+        {/* 💰 기부 폼 – 토스트 사용하는 컴포넌트로 대체 */}
+        <DonateButton />
       </section>
 
       <section className="rounded-3xl bg-gradient-to-br from-slate-800/90 via-slate-900/90 to-slate-800/90 p-8 shadow-xl border border-white/5">

@@ -88,8 +88,7 @@ export const LoginButton = () => {
       onClick={handleLogin}
       disabled={loading}
     >
-      <span className="gc-google-icon">G</span>
-      <span>{loading ? "로그인 중..." : "Google로 계속하기"}</span>
+      <span>{loading ? "로그인 중..." : "로그인하기"}</span>
     </button>
   );
 };
