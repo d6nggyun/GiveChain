@@ -30,7 +30,9 @@ public record CampaignResponse(
 
         String organizerLogoUrl,
 
-        String smartContractAddress
+        String smartContractAddress,
+
+        String relatedLink
 
 ) {
     public static CampaignResponse of(Campaign campaign) {
@@ -47,7 +49,8 @@ public record CampaignResponse(
                 campaign.getImageUrl(),
                 campaign.getOrganizerName(),
                 campaign.getOrganizerLogoUrl(),
-                campaign.getSmartContractAddress()
+                campaign.getSmartContractAddress(),
+                campaign.getRelatedLink()
         );
     }
 }

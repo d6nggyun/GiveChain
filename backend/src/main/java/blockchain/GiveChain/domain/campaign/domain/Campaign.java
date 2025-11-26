@@ -63,6 +63,9 @@ public class Campaign extends BaseTimeEntity {
     @Column(name = "smart_contract_address", nullable = false)
     private String smartContractAddress;
 
+    @Column(name = "related_link", nullable = false)
+    private String relatedLink;
+
     private Campaign(String title, String description, String detailedDescription,
                      CampaignCategory category,
                      Long currentAmount,
@@ -70,7 +73,7 @@ public class Campaign extends BaseTimeEntity {
                      CampaignStatus status,
                      String imageUrl,
                      String organizerName, String organizerLogoUrl,
-                     String smartContractAddress) {
+                     String smartContractAddress, String relatedLink) {
         this.title = title;
         this.description = description;
         this.detailedDescription = detailedDescription;
@@ -83,6 +86,7 @@ public class Campaign extends BaseTimeEntity {
         this.organizerName = organizerName;
         this.organizerLogoUrl = organizerLogoUrl;
         this.smartContractAddress = smartContractAddress;
+        this.relatedLink = relatedLink;
     }
 
     public static Campaign of(AddCampaignRequest request) {
@@ -98,7 +102,8 @@ public class Campaign extends BaseTimeEntity {
                 request.imageUrl(),
                 request.organizerName(),
                 request.organizerLogoUrl(),
-                request.smartContractAddress()
+                request.smartContractAddress(),
+                request.relatedLink()
         );
     }
 

@@ -36,7 +36,10 @@ public record AddCampaignRequest(
         String organizerLogoUrl,
 
         @NotBlank
-        String smartContractAddress
+        String smartContractAddress,
+
+        @NotBlank
+        String relatedLink
 
 ) {
 }
