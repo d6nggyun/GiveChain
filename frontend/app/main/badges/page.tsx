@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { fetchTotalDonation } from "@/lib/donation";
+import { fetchUserTotalDonation } from "@/lib/donation";
 
 const mockBadges = [
   { id: 1, name: "첫 기부", description: "첫 번째 온체인 기부를 완료했습니다." },
@@ -38,10 +38,10 @@ export default function BadgePage() {
       try {
         setLoadingDonation(true);
         setDonationError(null);
-        const amount = await fetchTotalDonation(user.walletAddress);
+        const amount = await fetchUserTotalDonation(user.walletAddress);
         setTotalDonation(amount);
       } catch (e) {
-        console.error("[Badges] fetchTotalDonation error:", e);
+        console.error("[Badges] fetchUserTotalDonation error:", e);
         setDonationError("온체인 기부 금액을 불러오지 못했습니다.");
       } finally {
         setLoadingDonation(false);

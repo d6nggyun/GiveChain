@@ -92,3 +92,22 @@ export async function fetchCampaignTotal(campaignId: number) {
     return "0";
   }
 }
+
+// 🔹 4) 유저의 전체(모든 캠페인 합산) 기부액 조회
+export async function fetchUserTotalDonation(walletAddress: string) {
+  try {
+    const provider = new ethers.JsonRpcProvider(HARDHAT_RPC_URL);
+
+    const contract = new ethers.Contract(
+      DONATION_CONTRACT_ADDRESS,
+      donationAbi.abi,
+      provider
+    );
+
+    const amount = await contract.getTotalDonation(walletAddress);
+    return ethers.formatEther(amount);
+  } catch (e) {
+    console.error("[fetchUserTotalDonation] error:", e);
+    return "0";
+  }
+}
