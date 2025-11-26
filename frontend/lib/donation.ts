@@ -8,7 +8,7 @@ const HARDHAT_RPC_URL =
   process.env.NEXT_PUBLIC_HARDHAT_RPC_URL ?? "http://127.0.0.1:8545";
 
 // 🔹 1) 기부 트랜잭션 (MetaMask 기준)
-export async function donateByWallet(amountEth: string) {
+export async function donateByWallet(amountEth: string, campaignId: number) {
   if (typeof window === "undefined" || !window.ethereum) {
     throw new Error("지갑이 없습니다. MetaMask를 설치하고 다시 시도해주세요.");
   }
@@ -28,7 +28,6 @@ export async function donateByWallet(amountEth: string) {
 
   const signer = await provider.getSigner();
 
-  // 🔥 ABI 최신 버전 그대로 사용 (Donation.json)
   const contract = new ethers.Contract(
     DONATION_CONTRACT_ADDRESS,
     donationAbi.abi,
@@ -36,9 +35,12 @@ export async function donateByWallet(amountEth: string) {
   );
 
   try {
-    const tx = await contract.donate({
-      value: ethers.parseEther(amountEth),
-    });
+    const tx = await contract.donate(
+      campaignId, // 🔥 캠페인 ID 전달
+      {
+        value: ethers.parseEther(amountEth),
+      }
+    );
 
     return await tx.wait();
   } catch (e: any) {
@@ -52,25 +54,12 @@ export async function donateByWallet(amountEth: string) {
   }
 }
 
-// 🔹 2) 총 기부 조회 (READ ONLY) → RPC로 직접 조회
-export async function fetchTotalDonation(walletAddress: string) {
+export async function fetchUserDonation(
+  campaignId: number,
+  walletAddress: string
+) {
   try {
     const provider = new ethers.JsonRpcProvider(HARDHAT_RPC_URL);
-
-    console.log("[fetchTotalDonation] RPC URL:", HARDHAT_RPC_URL);
-    console.log("[fetchTotalDonation] CONTRACT:", DONATION_CONTRACT_ADDRESS);
-    console.log("[fetchTotalDonation] WALLET:", walletAddress);
-
-    const code = await provider.getCode(DONATION_CONTRACT_ADDRESS);
-    console.log("[fetchTotalDonation] contract code:", code);
-
-    if (code === "0x") {
-      console.warn(
-        "[fetchTotalDonation] No contract at",
-        DONATION_CONTRACT_ADDRESS
-      );
-      return "0";
-    }
 
     const contract = new ethers.Contract(
       DONATION_CONTRACT_ADDRESS,
@@ -78,14 +67,28 @@ export async function fetchTotalDonation(walletAddress: string) {
       provider
     );
 
-    const amount = await contract.getTotalDonation(walletAddress);
-    console.log("[fetchTotalDonation] raw amount:", amount.toString());
+    const amount = await contract.getDonation(campaignId, walletAddress);
+    return ethers.formatEther(amount); // "0.004" 형식 문자열
+  } catch (e) {
+    console.error("[fetchUserDonation] error:", e);
+    return "0";
+  }
+}
 
-    const formatted = ethers.formatEther(amount);
-    console.log("[fetchTotalDonation] formatted:", formatted);
-    return formatted;
-  } catch (e: any) {
-    console.error("[fetchTotalDonation] error:", e);
+export async function fetchCampaignTotal(campaignId: number) {
+  try {
+    const provider = new ethers.JsonRpcProvider(HARDHAT_RPC_URL);
+
+    const contract = new ethers.Contract(
+      DONATION_CONTRACT_ADDRESS,
+      donationAbi.abi,
+      provider
+    );
+
+    const amount = await contract.getTotalDonationByCampaign(campaignId);
+    return ethers.formatEther(amount);
+  } catch (e) {
+    console.error("[fetchCampaignTotal] error:", e);
     return "0";
   }
 }

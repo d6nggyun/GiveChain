@@ -11,6 +11,13 @@ import type {
   RankingMemberResponse,
 } from "@/lib/rankingTypes";
 
+function formatEthFromWei(wei: number): string {
+  const eth = wei / 1e18; // 1 ETH = 1e18 wei
+  return eth.toLocaleString(undefined, {
+    maximumFractionDigits: 4, // 소수 4자리까지
+  });
+}
+
 export default function RankingPage() {
   const router = useRouter();
 
@@ -135,7 +142,7 @@ export default function RankingPage() {
                           )}
                         </td>
                         <td className="py-3 px-4 text-right text-gray-200">
-                          {row.totalDonationAmount.toLocaleString()} GVC
+                          {formatEthFromWei(row.totalDonationAmount)} ETH
                         </td>
                       </tr>
                     ),
@@ -209,7 +216,7 @@ export default function RankingPage() {
                     </div>
                   </div>
                   <div className="text-sm text-gray-100">
-                    {r.totalDonationAmount.toLocaleString()} GVC
+                    {formatEthFromWei(r.totalDonationAmount)} ETH
                   </div>
                 </li>
               ))}
@@ -281,7 +288,7 @@ export default function RankingPage() {
                               </div>
                             </div>
                             <div className="text-sm text-gray-100">
-                              {r.totalDonationAmount.toLocaleString()} GVC
+                              {formatEthFromWei(r.totalDonationAmount)} ETH
                             </div>
                           </li>
                         ),
