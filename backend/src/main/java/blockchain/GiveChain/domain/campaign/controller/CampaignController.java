@@ -9,12 +9,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/campaigns")
 public class CampaignController {
 
-    private CampaignService campaignService;
+    private final CampaignService campaignService;
+
+    // 캠페인 조회
+    @GetMapping
+    public ResponseEntity<List<CampaignResponse>> getCampaign() {
+        return ResponseEntity.status(HttpStatus.OK).body(campaignService.getCampaign());
+    }
+
+    // 캠페인 상세 조회
+    @GetMapping("/{campaignId}")
+    public ResponseEntity<CampaignResponse> getDetailCampaign(@PathVariable Long campaignId) {
+        return ResponseEntity.status(HttpStatus.OK).body(campaignService.getDetailCampaign(campaignId));
+    }
 
     // 캠페인 등록
     @PostMapping
@@ -23,6 +37,11 @@ public class CampaignController {
     }
 
     // 캠페인 삭제
+    @DeleteMapping
+    public ResponseEntity<Void> deleteCampaign(@RequestParam Long campaignId) {
+        campaignService.deleteCampaign(campaignId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
     // 캠페인 시작
     @PutMapping("/{campaignId}/start")

@@ -1,8 +1,6 @@
 package blockchain.GiveChain.domain.campaign.dto.res;
 
 import blockchain.GiveChain.domain.campaign.domain.Campaign;
-import blockchain.GiveChain.domain.campaign.enums.CampaignCategory;
-import blockchain.GiveChain.domain.campaign.enums.CampaignStatus;
 
 import java.time.LocalDate;
 
@@ -16,7 +14,7 @@ public record CampaignResponse(
 
         String detailedDescription,
 
-        CampaignCategory category,
+        String category,
 
         Long currentAmount,
 
@@ -24,7 +22,7 @@ public record CampaignResponse(
 
         LocalDate endDate,
 
-        CampaignStatus status,
+        String status,
 
         String imageUrl,
 
@@ -41,11 +39,11 @@ public record CampaignResponse(
                 campaign.getTitle(),
                 campaign.getDescription(),
                 campaign.getDetailedDescription(),
-                campaign.getCategory(),
+                campaign.getCategory().getName(),
                 campaign.getCurrentAmount(),
                 campaign.getStartDate(),
                 campaign.getEndDate(),
-                campaign.getStatus(),
+                campaign.getStatus().getName(),
                 campaign.getImageUrl(),
                 campaign.getOrganizerName(),
                 campaign.getOrganizerLogoUrl(),
