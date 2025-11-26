@@ -16,12 +16,16 @@ contract Donation {
     // 캠페인별 총 기부액
     mapping(uint256 => uint256) public totalFundByCampaign;
 
+    // 유저 전체 기부액 (모든 캠페인 합)
+    mapping(address => uint256) public totalDonationByUser;
+
     // 기부 함수 : campaignId 포함
     function donate(uint256 campaignId) external payable {
         require(msg.value > 0, "Donation must be > 0");
 
         donationByCampaign[campaignId][msg.sender] += msg.value;
         totalFundByCampaign[campaignId] += msg.value;
+        totalDonationByUser[msg.sender] += msg.value;
 
         emit Donated(campaignId, msg.sender, msg.value, block.timestamp);
     }
@@ -34,5 +38,10 @@ contract Donation {
     // 특정 캠페인의 총 기부액 조회
     function getTotalDonationByCampaign(uint256 campaignId) external view returns (uint256) {
         return totalFundByCampaign[campaignId];
+    }
+
+    // 유저 전체 기부액 조회 (모든 캠페인 합산)
+    function getTotalDonation(address user) external view returns (uint256) {
+        return totalDonationByUser[user];
     }
 }
