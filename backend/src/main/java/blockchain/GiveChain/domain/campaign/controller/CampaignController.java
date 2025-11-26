@@ -33,7 +33,7 @@ public class CampaignController {
     // 캠페인 등록
     @PostMapping
     public ResponseEntity<CampaignResponse> addCampaign(@Valid @RequestBody AddCampaignRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(campaignService.addCampaign(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(campaignService.addCampaign(request));
     }
 
     // 캠페인 삭제
