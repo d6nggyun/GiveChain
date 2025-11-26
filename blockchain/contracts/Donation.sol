@@ -2,23 +2,37 @@
 pragma solidity ^0.8.20;
 
 contract Donation {
-    // 기부가 발생할 때마다 블록체인에 로그를 남김
-    event Donated(address indexed donor, uint256 amount, uint256 timestamp);
+    // 이벤트
+    event Donated(
+        uint256 indexed campaignId,
+        address indexed donor,
+        uint256 amount,
+        uint256 timestamp
+    );
 
-    // 주소별 총 기부 금액 저장
-    mapping(address => uint256) public totalDonations;
+    // 캠페인 → (유저 → 기부액)
+    mapping(uint256 => mapping(address => uint256)) public donationByCampaign;
 
-    // 기부 함수
-    function donate() external payable {
+    // 캠페인별 총 기부액
+    mapping(uint256 => uint256) public totalFundByCampaign;
+
+    // 기부 함수 : campaignId 포함
+    function donate(uint256 campaignId) external payable {
         require(msg.value > 0, "Donation must be > 0");
 
-        totalDonations[msg.sender] += msg.value;
+        donationByCampaign[campaignId][msg.sender] += msg.value;
+        totalFundByCampaign[campaignId] += msg.value;
 
-        emit Donated(msg.sender, msg.value, block.timestamp);
+        emit Donated(campaignId, msg.sender, msg.value, block.timestamp);
     }
 
-    // 조회 함수
-    function getTotalDonation(address user) public view returns (uint256) {
-        return totalDonations[user];
+    // 특정 캠페인에서 특정 유저의 총 기부액 조회
+    function getDonation(uint256 campaignId, address user) external view returns (uint256) {
+        return donationByCampaign[campaignId][user];
+    }
+
+    // 특정 캠페인의 총 기부액 조회
+    function getTotalDonationByCampaign(uint256 campaignId) external view returns (uint256) {
+        return totalFundByCampaign[campaignId];
     }
 }
