@@ -86,6 +86,8 @@ jobs:
               --env MYSQL_USERNAME='${{ secrets.MYSQL_USERNAME }}' \
               --env MYSQL_PASSWORD='${{ secrets.MYSQL_PASSWORD }}' \
               --env JWT_SECRET='${{ secrets.JWT_SECRET }}' \
+              --env BADGE_CONTRACT_ADDRESS='${{ secrets.BADGE_CONTRACT_ADDRESS }}' \
+              --env OWNER_PRIVATE_KEY='${{ secrets.OWNER_PRIVATE_KEY }}' \
               -p 8080:8080 \
               $IMAGE
             

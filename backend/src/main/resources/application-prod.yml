@@ -31,3 +31,5 @@ logging:
 blockchain:
   rpc-url: ${RPC_URL}
   donation-contract-address: ${DONATION_CONTRACT_ADDRESS}
+  badge-contract-address: ${BADGE_CONTRACT_ADDRESS}
+  owner-private-key: ${OWNER_PRIVATE_KEY}
