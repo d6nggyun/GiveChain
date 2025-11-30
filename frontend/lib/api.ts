@@ -45,3 +45,20 @@ export async function fetchCountryRankings() {
 
   return res.json();
 }
+
+export async function fetchMyBadgesFromBackend() {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL!;
+  const res = await fetch(`${API_BASE}/api/badges`, {
+    method: "GET",
+    credentials: "include", // 쿠키 기반 로그인 사용 중인 경우
+  });
+
+  if (res.status === 401) {
+    throw new Error("로그인이 필요합니다.");
+  }
+  if (!res.ok) {
+    throw new Error("뱃지 정보를 불러오지 못했습니다.");
+  }
+
+  return res.json(); // BadgeResponse[]
+}

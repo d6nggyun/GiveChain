@@ -11,6 +11,7 @@ export type RankingMemberResponse = {
   memberCountry: string;
   totalDonationAmount: number;
   isMine: boolean;
+  badgeTypes: string[];
 };
 
 export type CategoryRankingResponse = {

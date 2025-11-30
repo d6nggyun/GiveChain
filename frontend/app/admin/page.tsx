@@ -26,13 +26,68 @@ export default function AdminCampaignPage() {
   const [creating, setCreating] = useState(false);
   const [acting, setActing] = useState(false);
 
+  // 🔹 IPFS 업로드 상태
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  // 🔹 공통 IPFS 업로드 함수
+  const uploadFileToIpfs = async (
+    file: File | null,
+    onSuccess: (url: string) => void,
+    setUploading: (v: boolean) => void,
+  ) => {
+    if (!file) {
+      toast.error("업로드할 파일을 선택해 주세요.");
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Next.js API Route 호출 (백엔드 Spring 아님!)
+      const res = await fetch("/api/ipfs/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("[Admin] IPFS upload error:", text);
+        toast.error("IPFS 업로드에 실패했습니다.");
+        return;
+      }
+
+      const data = (await res.json()) as { cid: string; url: string };
+
+      onSuccess(data.url); // 🔥 콜백으로 해당 state 세팅
+      toast.success("IPFS 업로드 완료!");
+    } catch (e) {
+      console.error(e);
+      toast.error("IPFS 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleCreate = async () => {
     if (!API_BASE) {
       toast.error("API_BASE 환경변수가 설정되지 않았습니다.");
       return;
     }
 
-    if (!title || !description || !detailedDescription || !category || !startDate || !endDate || !organizerName || !smartContractAddress) {
+    if (
+      !title ||
+      !description ||
+      !detailedDescription ||
+      !category ||
+      !startDate ||
+      !endDate ||
+      !organizerName ||
+      !smartContractAddress
+    ) {
       toast.error("필수 값들을 모두 입력해 주세요.");
       return;
     }
@@ -158,7 +213,9 @@ export default function AdminCampaignPage() {
           {/* 왼쪽 필드들 */}
           <div className="space-y-3">
             <div>
-              <label className="block text-xs text-gray-300 mb-1">캠페인 이름 *</label>
+              <label className="block text-xs text-gray-300 mb-1">
+                캠페인 이름 *
+              </label>
               <input
                 className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-sm"
                 value={title}
@@ -168,7 +225,9 @@ export default function AdminCampaignPage() {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-300 mb-1">요약 설명 *</label>
+              <label className="block text-xs text-gray-300 mb-1">
+                요약 설명 *
+              </label>
               <textarea
                 className="w-full h-16 bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-sm"
                 value={description}
@@ -178,7 +237,9 @@ export default function AdminCampaignPage() {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-300 mb-1">상세 설명 *</label>
+              <label className="block text-xs text-gray-300 mb-1">
+                상세 설명 *
+              </label>
               <textarea
                 className="w-full h-24 bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-sm"
                 value={detailedDescription}
@@ -204,7 +265,9 @@ export default function AdminCampaignPage() {
           <div className="space-y-3">
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block text-xs text-gray-300 mb-1">시작일 *</label>
+                <label className="block text-xs text-gray-300 mb-1">
+                  시작일 *
+                </label>
                 <input
                   type="date"
                   className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-sm"
@@ -213,7 +276,9 @@ export default function AdminCampaignPage() {
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-xs text-gray-300 mb-1">종료일 *</label>
+                <label className="block text-xs text-gray-300 mb-1">
+                  종료일 *
+                </label>
                 <input
                   type="date"
                   className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-sm"
@@ -223,18 +288,63 @@ export default function AdminCampaignPage() {
               </div>
             </div>
 
+            {/* 🔹 대표 이미지: IPFS 업로드 + URL + 미리보기 */}
             <div>
-              <label className="block text-xs text-gray-300 mb-1">대표 이미지 URL *</label>
+              <label className="block text-xs text-gray-300 mb-1">
+                대표 이미지 (IPFS 업로드) *
+              </label>
+
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null;
+                    if (file) {
+                      void uploadFileToIpfs(
+                        file,
+                        (url) => setImageUrl(url),
+                        setUploadingImage,
+                      );
+                    }
+                  }}
+                  className="text-xs text-gray-300"
+                />
+                {uploadingImage && (
+                  <span className="text-[11px] text-gray-400">
+                    업로드 중...
+                  </span>
+                )}
+              </div>
+
+              {/* IPFS URL 직접 입력도 가능하게 유지 */}
               <input
                 className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-sm"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://..."
+                placeholder="IPFS 또는 일반 이미지 URL"
               />
+
+              {/* 미리보기 */}
+              {imageUrl && (
+                <div className="mt-2">
+                  <span className="block text-[11px] text-gray-400 mb-1">
+                    미리보기
+                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageUrl}
+                    alt="campaign preview"
+                    className="w-40 h-24 object-cover rounded-lg border border-[#3B3D5A]"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
-              <label className="block text-xs text-gray-300 mb-1">주관 단체명 *</label>
+              <label className="block text-xs text-gray-300 mb-1">
+                주관 단체명 *
+              </label>
               <input
                 className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-sm"
                 value={organizerName}
@@ -243,14 +353,57 @@ export default function AdminCampaignPage() {
               />
             </div>
 
+            {/* 🔹 주관 단체 로고: IPFS 업로드 + URL + 미리보기 */}
             <div>
-              <label className="block text-xs text-gray-300 mb-1">주관 단체 로고 URL *</label>
+              <label className="block text-xs text-gray-300 mb-1">
+                주관 단체 로고 (IPFS 업로드) *
+              </label>
+
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null;
+                    if (file) {
+                      void uploadFileToIpfs(
+                        file,
+                        (url) => setOrganizerLogoUrl(url),
+                        setUploadingLogo,
+                      );
+                    }
+                  }}
+                  className="text-xs text-gray-300"
+                />
+                {uploadingLogo && (
+                  <span className="text-[11px] text-gray-400">
+                    업로드 중...
+                  </span>
+                )}
+              </div>
+
+              {/* IPFS URL 직접 입력도 가능 */}
               <input
                 className="w-full bg-[#25263A] border border-[#3B3D5A] rounded-lg px-3 py-2 text-sm"
                 value={organizerLogoUrl}
                 onChange={(e) => setOrganizerLogoUrl(e.target.value)}
-                placeholder="https://..."
+                placeholder="IPFS 또는 일반 이미지 URL"
               />
+
+              {/* 미리보기 */}
+              {organizerLogoUrl && (
+                <div className="mt-2">
+                  <span className="block text-[11px] text-gray-400 mb-1">
+                    로고 미리보기
+                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={organizerLogoUrl}
+                    alt="organizer logo preview"
+                    className="w-24 h-24 object-contain rounded-lg border border-[#3B3D5A] bg-[#141527]"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
@@ -292,7 +445,9 @@ export default function AdminCampaignPage() {
 
       {/* 캠페인 제어 카드 */}
       <section className="rounded-2xl bg-[#0b1220] border border-white/10 p-6 space-y-4">
-        <h2 className="text-lg font-semibold mb-2">캠페인 제어 (삭제 / 시작 / 종료)</h2>
+        <h2 className="text-lg font-semibold mb-2">
+          캠페인 제어 (삭제 / 시작 / 종료)
+        </h2>
         <p className="text-xs text-gray-400 mb-2">
           아래에 캠페인 ID를 입력한 뒤 원하는 동작 버튼을 클릭하세요.
         </p>

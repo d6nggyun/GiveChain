@@ -4,8 +4,7 @@ import donationAbi from "@/abi/Donation.json";
 import { ensureHardhatNetwork } from "@/lib/network";
 
 const DONATION_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DONATION_ADDRESS!;
-const HARDHAT_RPC_URL =
-  process.env.NEXT_PUBLIC_HARDHAT_RPC_URL ?? "http://127.0.0.1:8545";
+const HARDHAT_RPC_URL = process.env.NEXT_PUBLIC_HARDHAT_RPC_URL;
 
 // 🔹 1) 기부 트랜잭션 (MetaMask 기준)
 export async function donateByWallet(amountEth: string, campaignId: number) {
