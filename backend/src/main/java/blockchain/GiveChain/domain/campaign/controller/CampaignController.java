@@ -37,8 +37,8 @@ public class CampaignController {
     }
 
     // 캠페인 삭제
-    @DeleteMapping
-    public ResponseEntity<Void> deleteCampaign(@RequestParam Long campaignId) {
+    @DeleteMapping("/{campaignId}")
+    public ResponseEntity<Void> deleteCampaign(@PathVariable Long campaignId) {
         campaignService.deleteCampaign(campaignId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
