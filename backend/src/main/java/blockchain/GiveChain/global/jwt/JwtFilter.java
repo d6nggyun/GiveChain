@@ -13,12 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,14 +26,6 @@ public class JwtFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        return Arrays.stream(excludedUris)
-                .anyMatch(pattern -> pathMatcher.match(pattern, uri));
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -44,6 +34,11 @@ public class JwtFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         try {
+            if (!StringUtils.hasText(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt, "access")) {
 
                 Authentication authentication = jwtProvider.getAuthentication(jwt);
@@ -89,11 +84,4 @@ public class JwtFilter extends OncePerRequestFilter {
 
         response.getWriter().write(json);
     }
-
-    private final String[] excludedUris = {
-            "/api/auth/login",
-            "/api/auth/refresh",
-            "/api/rankings",
-            "/api/campaigns/**"
-    };
 }
