@@ -1,5 +1,6 @@
 package blockchain.GiveChain.domain.donation.service;
 
+import blockchain.GiveChain.domain.badge.service.BadgeService;
 import blockchain.GiveChain.domain.donation.domain.Donation;
 import blockchain.GiveChain.domain.donation.dto.req.DonationRequest;
 import blockchain.GiveChain.domain.donation.dto.res.DonationResponse;
@@ -16,10 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class DonationService {
 
     private final DonationRepository donationRepository;
+    private final BadgeService badgeService;
 
     @Transactional
     public DonationResponse saveDonation(MemberDetail memberDetail, DonationRequest request) {
         Donation donation = donationRepository.save(Donation.of(memberDetail.getMember().getId(), request));
+
+        badgeService.createAndMintBadge(memberDetail.getMember());
+
         return DonationResponse.from(donation);
     }
 }
