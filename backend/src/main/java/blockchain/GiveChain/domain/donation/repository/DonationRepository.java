@@ -31,7 +31,8 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
             m.name,
             m.country,
             SUM(d.amount),
-            false
+            false,
+            null
         )
         FROM Donation d
         JOIN Member m ON d.memberId = m.id
@@ -48,7 +49,8 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
                 m.name,
                 m.country,
                 SUM(d.amount),
-                false
+                false,
+                null
             )
             FROM Donation d
             JOIN Member m ON d.memberId = m.id
@@ -58,4 +60,13 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
             LIMIT 10
 """)
     List<RankingMemberResponse> findTop10CountryMemberRankings(@Param("country") String country);
+
+    long countByMemberId(Long memberId);
+
+    @Query("""
+    SELECT SUM(d.amount)
+    FROM Donation d
+    WHERE d.memberId = :memberId
+""")
+    long sumAmountByMemberId(Long memberId);
 }

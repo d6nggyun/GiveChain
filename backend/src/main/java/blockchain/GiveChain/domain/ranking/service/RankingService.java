@@ -1,5 +1,6 @@
 package blockchain.GiveChain.domain.ranking.service;
 
+import blockchain.GiveChain.domain.badge.service.BadgeService;
 import blockchain.GiveChain.domain.campaign.enums.CampaignCategory;
 import blockchain.GiveChain.domain.donation.repository.DonationRepository;
 import blockchain.GiveChain.domain.member.domain.MemberDetail;
@@ -21,6 +22,7 @@ import java.util.List;
 public class RankingService {
 
     private final DonationRepository donationRepository;
+    private final BadgeService badgeService;
 
     @Transactional(readOnly = true)
     public RankingResponse getRankings(MemberDetail memberDetail) {
@@ -39,13 +41,19 @@ public class RankingService {
                 .map(category -> {
                     List<RankingMemberResponse> memberRankings = donationRepository.findCategoryMemberRankings(category).stream()
                             .limit(10)
-                            .map(cr -> RankingMemberResponse.of(
-                                    cr.memberId(),
-                                    cr.memberName(),
-                                    cr.memberCountry(),
-                                    cr.totalDonationAmount(),
-                                    cr.memberId().equals(memberId)
-                            )).toList();
+                            .map(cr -> {
+                                Long targetMemberId = cr.memberId();
+                                List<String> badgeTypes = badgeService.loadBadgeTypesForMember(targetMemberId);
+
+                                return RankingMemberResponse.of(
+                                        targetMemberId,
+                                        cr.memberName(),
+                                        cr.memberCountry(),
+                                        cr.totalDonationAmount(),
+                                        cr.memberId().equals(memberId),
+                                        badgeTypes
+                                );
+                            }).toList();
 
                     return CategoryRankingResponse.of(category, memberRankings);
                 }).toList();
@@ -59,13 +67,19 @@ public class RankingService {
 
         return countryRankings.stream()
                 .limit(10)
-                .map(cr -> RankingMemberResponse.of(
-                        cr.memberId(),
-                        cr.memberName(),
-                        cr.memberCountry(),
-                        cr.totalDonationAmount(),
-                        cr.memberId().equals(memberDetail.getMember().getId())
-                )).toList();
+                .map(cr -> {
+                    Long targetMemberId = cr.memberId();
+                    List<String> badgeTypes = badgeService.loadBadgeTypesForMember(targetMemberId);
+
+                    return RankingMemberResponse.of(
+                            targetMemberId,
+                            cr.memberName(),
+                            cr.memberCountry(),
+                            cr.totalDonationAmount(),
+                            cr.memberId().equals(memberDetail.getMember().getId()),
+                            badgeTypes
+                    );
+                }).toList();
     }
 
     private Long getMemberId(MemberDetail memberDetail) {
