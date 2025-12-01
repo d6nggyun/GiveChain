@@ -1,0 +1,8 @@
+{
+  "name": "Donation 3 Times",
+  "description": "총 3회 이상 기부를 달성한 사용자에게 지급되는 배지입니다.",
+  "attributes": [
+    { "trait_type": "Category", "value": "Donation Count" },
+    { "trait_type": "Threshold", "value": "3 times" }
+  ]
+}

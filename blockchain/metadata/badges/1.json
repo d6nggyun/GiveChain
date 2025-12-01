@@ -1,0 +1,8 @@
+{
+  "name": "First Donation",
+  "description": "첫 번째 기부를 완료한 사용자가 획득하는 배지입니다.",
+  "attributes": [
+    { "trait_type": "Category", "value": "Donation Count" },
+    { "trait_type": "Threshold", "value": "1 time" }
+  ]
+}

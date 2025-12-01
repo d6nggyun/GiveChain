@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title GiveChain Badge NFT
@@ -11,6 +12,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * - owner(백엔드 지갑 등)만 mint 가능
  */
 contract BadgeNFT is ERC1155, Ownable {
+    using Strings for uint256;
+
     // 배지 메타정보 저장용 (선택 사항, 안 써도 됨)
     struct BadgeInfo {
         string name;
@@ -23,10 +26,27 @@ contract BadgeNFT is ERC1155, Ownable {
     // address => tokenId => 보유 여부(1 이상이면 true지만, 명시적으로 한 번 체크용)
     mapping(address => mapping(uint256 => bool)) public hasBadge;
 
+    /**
+     * @param baseUri 예: "ipfs://Qm.../"  (뒤에 슬래시 포함)
+     *
+     * 실제 최종 URI는 아래 uri() 오버라이드에서
+     *   baseUri + tokenId + ".json"
+     * 형태로 반환됨.
+     * 예: "ipfs://Qm.../1.json"
+     */
     constructor(string memory baseUri)
-        ERC1155(baseUri) // 예: "ipfs://.../{id}.json"
+        ERC1155(baseUri) // super.uri(id) 가 baseUri 를 반환
         Ownable(msg.sender)
     {}
+
+    // -----------------------------
+    // 🔹 ERC1155 메타데이터 URI 오버라이드
+    // -----------------------------
+    function uri(uint256 id) public view override returns (string memory) {
+        // super.uri(id) => constructor 에 넣은 baseUri (예: "ipfs://CID/")
+        // 최종: "ipfs://CID/1.json", "ipfs://CID/2.json" ...
+        return string(abi.encodePacked(super.uri(id), id.toString(), ".json"));
+    }
 
     // -----------------------------
     // 🔹 배지 메타 설정 (관리자용)

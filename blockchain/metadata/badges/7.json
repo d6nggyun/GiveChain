@@ -1,0 +1,8 @@
+{
+  "name": "Bronze Donor",
+  "description": "누적 10달러 이상 기부한 사용자에게 지급되는 브론즈 티어 배지입니다.",
+  "attributes": [
+    { "trait_type": "Category", "value": "Donation Amount" },
+    { "trait_type": "Threshold", "value": "10 USD" }
+  ]
+}
