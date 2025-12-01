@@ -62,11 +62,11 @@ jobs:
           port: ${{ secrets.AWS_EC2_PORT }}
           script: |
             cd /home/ubuntu
-            
+
             APP_NAME=${{ secrets.DOCKER_REPO }}
             IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             COLOR_FILE=/home/ubuntu/deploy_color
-            
+
             # 현재 색 / 다음 색 / 포트 결정
             if [ -f "$COLOR_FILE" ] && [ "$(cat $COLOR_FILE)" = "blue" ]; then
               CURRENT_COLOR=blue
@@ -79,74 +79,70 @@ jobs:
               CURRENT_PORT=8081
               NEW_PORT=8080
             fi
-            
+
             echo "Current color: $CURRENT_COLOR"
             echo "New color: $NEW_COLOR"
-            
-            # 최신 이미지 pull
-            docker pull $IMAGE
-            
-            NEW_CONTAINER_NAME=${APP_NAME}-${NEW_COLOR}
-            OLD_CONTAINER_NAME=${APP_NAME}-${CURRENT_COLOR}
-            
+
+            docker pull "$IMAGE"
+
+            NEW_CONTAINER_NAME="${APP_NAME}-${NEW_COLOR}"
+            OLD_CONTAINER_NAME="${APP_NAME}-${CURRENT_COLOR}"
+
             # 새 컨테이너 자리에 기존 게 있으면 정리
             if [ "$(docker ps -aq -f name=$NEW_CONTAINER_NAME)" ]; then
               echo "Removing existing container on new slot: $NEW_CONTAINER_NAME"
-              docker stop $NEW_CONTAINER_NAME || true
-              docker rm $NEW_CONTAINER_NAME || true
+              docker stop "$NEW_CONTAINER_NAME" || true
+              docker rm "$NEW_CONTAINER_NAME" || true
             fi
-            
+
             echo "Starting new container on port ${NEW_PORT}..."
             docker run -d \
-              --name $NEW_CONTAINER_NAME \
-              --env SPRING_PROFILES_ACTIVE=prod \
-              --env JAVA_TOOL_OPTIONS="-Duser.timezone=Asia/Seoul" \
-              --env MYSQL_URL=${{ secrets.MYSQL_URL }} \
-              --env MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }} \
-              --env MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
-              --env JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              --env RPC_URL=${{ secrets.RPC_URL }} \
-              --env BADGE_CONTRACT_ADDRESS=${{ secrets.BADGE_CONTRACT_ADDRESS }} \
-              --env DONATION_CONTRACT_ADDRESS=${{ secrets.DONATION_CONTRACT_ADDRESS }} \
-              --env OWNER_PRIVATE_KEY=${{ secrets.OWNER_PRIVATE_KEY }} \
-              -p ${NEW_PORT}:8080 \
-              $IMAGE
-            
-            # 헬스 체크
-            HEALTH_PATH="/api/rankings"
-            
+              --name "$NEW_CONTAINER_NAME" \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e "JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul" \
+              -e "MYSQL_URL=${{ secrets.MYSQL_URL }}" \
+              -e "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" \
+              -e "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" \
+              -e "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+              -e "RPC_URL=${{ secrets.RPC_URL }}" \
+              -e "BADGE_CONTRACT_ADDRESS=${{ secrets.BADGE_CONTRACT_ADDRESS }}" \
+              -e "DONATION_CONTRACT_ADDRESS=${{ secrets.DONATION_CONTRACT_ADDRESS }}" \
+              -e "OWNER_PRIVATE_KEY=${{ secrets.OWNER_PRIVATE_KEY }}" \
+              -p "${NEW_PORT}:8080" \
+              "$IMAGE"
+
+            HEALTH_PATH="/api/test/jwt"
+
             echo "Health check for new container..."
             for i in {1..20}; do
               sleep 5
               STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${NEW_PORT}${HEALTH_PATH}" || echo "000")
               echo "Health check status: $STATUS_CODE"
-            
+
               if [ "$STATUS_CODE" = "200" ]; then
                 echo "New version is healthy!"
                 break
               fi
-            
+
               if [ "$i" -eq 20 ]; then
                 echo "New version did not become healthy in time. Aborting."
-                docker logs $NEW_CONTAINER_NAME || true
+                docker logs "$NEW_CONTAINER_NAME" || true
                 exit 1
               fi
             done
-            
-            # Caddy 포트 전환
+
             echo "Switching traffic to new container on port ${NEW_PORT}..."
-            
+
             sudo sed -i "s/reverse_proxy localhost:[0-9]\\+/reverse_proxy localhost:${NEW_PORT}/" /etc/caddy/Caddyfile
             sudo systemctl reload caddy
-            
-            # 기존 컨테이너 정리
+
             if [ "$(docker ps -q -f name=$OLD_CONTAINER_NAME)" ]; then
               echo "Stopping old container: $OLD_CONTAINER_NAME"
-              docker stop $OLD_CONTAINER_NAME || true
-              docker rm $OLD_CONTAINER_NAME || true
+              docker stop "$OLD_CONTAINER_NAME" || true
+              docker rm "$OLD_CONTAINER_NAME" || true
             fi
-            
+
             docker image prune -f
             
-            echo $NEW_COLOR > $COLOR_FILE
+            echo "$NEW_COLOR" > "$COLOR_FILE"
             echo "Deployment complete. Current color is now $(cat $COLOR_FILE)."
