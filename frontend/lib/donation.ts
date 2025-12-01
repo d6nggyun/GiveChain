@@ -4,7 +4,11 @@ import donationAbi from "@/abi/Donation.json";
 import { ensureSepoliaNetwork } from "@/lib/network";
 
 const DONATION_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DONATION_ADDRESS!;
-const HARDHAT_RPC_URL = process.env.NEXT_PUBLIC_HARDHAT_RPC_URL;
+
+// 🔹 Sepolia RPC (프론트용)
+const SEPOLIA_RPC_URL =
+  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
+  "https://rpc.ankr.com/eth_sepolia";
 
 // 🔹 1) 기부 트랜잭션 (MetaMask 기준)
 export async function donateByWallet(amountEth: string, campaignId: number) {
@@ -20,9 +24,12 @@ export async function donateByWallet(amountEth: string, campaignId: number) {
   const provider = new ethers.BrowserProvider(window.ethereum as any);
   const network = await provider.getNetwork();
 
-  if (network.chainId.toString() !== "31337") {
-    console.warn("[donateByWallet] 현재 chainId:", network.chainId.toString());
-    throw new Error("Hardhat 로컬 네트워크(ChainId 31337)에 연결해 주세요.");
+  // 🔹 Sepolia(11155111) 체크
+  const chainIdStr = network.chainId.toString(); // bigint -> string (10진수)
+  console.log("[donateByWallet] 현재 chainId:", chainIdStr);
+
+  if (chainIdStr !== "11155111") {
+    throw new Error("Sepolia 테스트넷(ChainId 11155111)에 연결해 주세요.");
   }
 
   const signer = await provider.getSigner();
@@ -53,12 +60,13 @@ export async function donateByWallet(amountEth: string, campaignId: number) {
   }
 }
 
+// 🔹 2) 특정 캠페인에 대한 해당 유저 기부액 조회
 export async function fetchUserDonation(
   campaignId: number,
   walletAddress: string
 ) {
   try {
-    const provider = new ethers.JsonRpcProvider(HARDHAT_RPC_URL);
+    const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
 
     const contract = new ethers.Contract(
       DONATION_CONTRACT_ADDRESS,
@@ -74,9 +82,10 @@ export async function fetchUserDonation(
   }
 }
 
+// 🔹 3) 캠페인별 총 기부액 조회
 export async function fetchCampaignTotal(campaignId: number) {
   try {
-    const provider = new ethers.JsonRpcProvider(HARDHAT_RPC_URL);
+    const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
 
     const contract = new ethers.Contract(
       DONATION_CONTRACT_ADDRESS,
@@ -95,7 +104,7 @@ export async function fetchCampaignTotal(campaignId: number) {
 // 🔹 4) 유저의 전체(모든 캠페인 합산) 기부액 조회
 export async function fetchUserTotalDonation(walletAddress: string) {
   try {
-    const provider = new ethers.JsonRpcProvider(HARDHAT_RPC_URL);
+    const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
 
     const contract = new ethers.Contract(
       DONATION_CONTRACT_ADDRESS,
