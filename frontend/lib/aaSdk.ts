@@ -7,11 +7,10 @@ import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
 const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
 
 const SEPOLIA_RPC_URL =
-  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://1rpc.io/sepolia";
+  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
+  "https://1rpc.io/sepolia";
 
 let web3auth: Web3Auth | null = null;
-// 🔹 Web3Auth에서 받은 provider를 저장할 전역 변수
-let web3authProvider: any | null = null;
 
 export type LoginResult = {
   provider: string;
@@ -29,7 +28,7 @@ export const initWeb3Auth = async (): Promise<Web3Auth> => {
     web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
     chainConfig: {
       chainNamespace: CHAIN_NAMESPACES.EIP155,
-      chainId: "0xaa36a7", // 11155111(10진수)
+      chainId: "0xaa36a7", // 11155111
       rpcTarget: SEPOLIA_RPC_URL,
       displayName: "Sepolia Testnet",
       ticker: "ETH",
@@ -64,9 +63,6 @@ export const loginWithGoogle = async (): Promise<LoginResult> => {
     throw new Error("지갑 provider를 얻지 못했습니다.");
   }
 
-  // 🔹 전역에 Web3Auth provider 저장
-  web3authProvider = provider;
-
   const userInfo: any = await wa.getUserInfo();
   console.log("[Web3Auth] userInfo:", userInfo);
 
@@ -77,7 +73,9 @@ export const loginWithGoogle = async (): Promise<LoginResult> => {
   console.log("[Web3Auth] accounts:", accounts);
 
   const providerType =
-    userInfo.typeOfLogin ?? userInfo.loginType ?? "none";
+    userInfo.typeOfLogin ??
+    userInfo.loginType ??
+    "none";
 
   const providerUserId =
     userInfo.verifierId ??
@@ -100,20 +98,31 @@ export const loginWithGoogle = async (): Promise<LoginResult> => {
   };
 };
 
-// 🔹 다른 곳에서 Web3Auth provider를 가져가기 위한 함수
-export function getWeb3AuthProvider() {
-  return web3authProvider;
-}
-
 export async function disconnectWeb3() {
   try {
     if (web3auth) {
-      await web3auth.logout(); // Web3Auth 세션 로그아웃
+      await web3auth.logout();
     }
   } catch (e) {
     console.error("[disconnectWeb3] Web3 로그아웃 실패:", e);
-  } finally {
-    // 🔹 provider도 비우기
-    web3authProvider = null;
   }
+}
+
+/** 🔹 기부 트랜잭션에서 Web3Auth provider를 가져올 때 사용할 헬퍼 */
+export async function getWeb3AuthProvider() {
+  const wa = await initWeb3Auth();
+
+  // 기존 세션이 있으면 provider가 이미 존재할 수 있고,
+  // 없으면 connect()를 다시 띄워서 로그인 유도
+  if (!wa.provider) {
+    try {
+      const provider = await wa.connect();
+      return provider;
+    } catch (e) {
+      console.error("[getWeb3AuthProvider] connect 실패:", e);
+      return null;
+    }
+  }
+
+  return wa.provider;
 }

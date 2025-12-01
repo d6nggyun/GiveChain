@@ -6,56 +6,44 @@ import { getWeb3AuthProvider } from "@/lib/aaSdk";
 
 const DONATION_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DONATION_ADDRESS!;
 
-// 🔹 Sepolia RPC (프론트용, 조회용)
+// Sepolia RPC (조회용)
 const SEPOLIA_RPC_URL =
-  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://1rpc.io/sepolia";
+  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
+  "https://1rpc.io/sepolia";
 
-// 🔹 1) 기부 트랜잭션 (Web3Auth 우선 + MetaMask 보조)
+// 🔹 1) 기부 트랜잭션 (MetaMask 또는 Web3Auth)
 export async function donateByWallet(amountEth: string, campaignId: number) {
-  const hasWindow = typeof window !== "undefined";
-
-  // ✅ 1. Web3Auth provider가 있으면 그걸 최우선으로 사용
-  const waProvider = getWeb3AuthProvider();
-  let ethersProvider: ethers.BrowserProvider | null = null;
-
-  if (waProvider) {
-    console.log("[donateByWallet] Web3Auth provider 사용");
-    ethersProvider = new ethers.BrowserProvider(waProvider as any);
-  } else {
-    // ✅ 2. Web3Auth가 없으면 MetaMask 시도
-    if (!hasWindow || !(window as any).ethereum) {
-      throw new Error("지갑이 없습니다. 지갑을 연결한 뒤 다시 시도해 주세요.");
-    }
-
-    const eth = (window as any).ethereum;
-
-    if (eth.isMetaMask) {
-      console.log("[donateByWallet] MetaMask provider 사용");
-
-      // 체인 Sepolia로 스위치
-      await ensureSepoliaNetwork();
-
-      // 계정 연결 (연결 안 되어 있으면 이 시점에서 팝업 뜸)
-      await eth.request({ method: "eth_requestAccounts" });
-
-      ethersProvider = new ethers.BrowserProvider(eth);
-    } else {
-      throw new Error(
-        "지원하지 않는 지갑 타입입니다. Web3Auth로 로그인하거나 MetaMask를 사용해 주세요."
-      );
-    }
+  if (typeof window === "undefined") {
+    throw new Error("클라이언트 환경에서만 기부가 가능합니다.");
   }
 
-  // 여기까지 왔으면 ethersProvider는 무조건 존재
-  const network = await ethersProvider.getNetwork();
-  const chainIdStr = network.chainId.toString(); // bigint → string
+  const hasMetaMask = !!(window as any).ethereum;
+  let eip1193Provider: any = null;
+
+  // 1) MetaMask가 있으면 MetaMask 우선 사용
+  if (hasMetaMask && (window as any).ethereum.isMetaMask) {
+    await ensureSepoliaNetwork();
+    eip1193Provider = (window as any).ethereum;
+  } else {
+    // 2) MetaMask 없으면 Web3Auth provider 시도
+    eip1193Provider = await getWeb3AuthProvider();
+  }
+
+  if (!eip1193Provider) {
+    throw new Error("지갑이 없습니다. 지갑을 연결한 뒤 다시 시도해 주세요.");
+  }
+
+  const provider = new ethers.BrowserProvider(eip1193Provider);
+  const network = await provider.getNetwork();
+
+  const chainIdStr = network.chainId.toString(); // bigint -> string
   console.log("[donateByWallet] 현재 chainId:", chainIdStr);
 
   if (chainIdStr !== "11155111") {
     throw new Error("Sepolia 테스트넷(ChainId 11155111)에 연결해 주세요.");
   }
 
-  const signer = await ethersProvider.getSigner();
+  const signer = await provider.getSigner();
 
   const contract = new ethers.Contract(
     DONATION_CONTRACT_ADDRESS,
@@ -64,9 +52,10 @@ export async function donateByWallet(amountEth: string, campaignId: number) {
   );
 
   try {
-    const tx = await contract.donate(campaignId, {
-      value: ethers.parseEther(amountEth),
-    });
+    const tx = await contract.donate(
+      campaignId,
+      { value: ethers.parseEther(amountEth) }
+    );
 
     return await tx.wait();
   } catch (e: any) {
@@ -95,7 +84,7 @@ export async function fetchUserDonation(
     );
 
     const amount = await contract.getDonation(campaignId, walletAddress);
-    return ethers.formatEther(amount); // "0.004" 형식 문자열
+    return ethers.formatEther(amount);
   } catch (e) {
     console.error("[fetchUserDonation] error:", e);
     return "0";
