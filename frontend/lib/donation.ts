@@ -1,7 +1,7 @@
 // lib/blockchain/donation.ts
 import { ethers } from "ethers";
 import donationAbi from "@/abi/Donation.json";
-import { ensureHardhatNetwork } from "@/lib/network";
+import { ensureSepoliaNetwork } from "@/lib/network";
 
 const DONATION_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DONATION_ADDRESS!;
 const HARDHAT_RPC_URL = process.env.NEXT_PUBLIC_HARDHAT_RPC_URL;
@@ -14,7 +14,7 @@ export async function donateByWallet(amountEth: string, campaignId: number) {
 
   // MetaMask일 때만 네트워크 스위치 시도
   if ((window.ethereum as any).isMetaMask) {
-    await ensureHardhatNetwork();
+    await ensureSepoliaNetwork();
   }
 
   const provider = new ethers.BrowserProvider(window.ethereum as any);
