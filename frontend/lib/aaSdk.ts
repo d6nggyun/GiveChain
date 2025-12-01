@@ -8,7 +8,7 @@ const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
 
 const SEPOLIA_RPC_URL =
   process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
-  "https://rpc.ankr.com/eth_sepolia"; 
+  "https://1rpc.io/sepolia"; 
 
 let web3auth: Web3Auth | null = null;
 

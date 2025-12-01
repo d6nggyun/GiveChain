@@ -8,7 +8,7 @@ const DONATION_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DONATION_ADDRESS!;
 // 🔹 Sepolia RPC (프론트용)
 const SEPOLIA_RPC_URL =
   process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
-  "https://rpc.ankr.com/eth_sepolia";
+  "https://1rpc.io/sepolia";
 
 // 🔹 1) 기부 트랜잭션 (MetaMask 기준)
 export async function donateByWallet(amountEth: string, campaignId: number) {
