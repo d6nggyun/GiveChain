@@ -28,6 +28,7 @@ public class BadgeOnChainClient {
 
     private final Web3j web3j;
     private final Credentials badgeOwnerCredentials;
+    private static final long SEPOLIA_CHAIN_ID = 11155111L;
 
     @Value("${blockchain.badge-contract-address}")
     private String badgeContractAddress;
@@ -74,7 +75,11 @@ public class BadgeOnChainClient {
         );
 
         // 서명 & 전송
-        byte[] signedMessage = TransactionEncoder.signMessage(rawTx, badgeOwnerCredentials);
+        byte[] signedMessage = TransactionEncoder.signMessage(
+                rawTx,
+                SEPOLIA_CHAIN_ID,
+                badgeOwnerCredentials
+        );
         String hexValue = Numeric.toHexString(signedMessage);
 
         EthSendTransaction sendTx = web3j.ethSendRawTransaction(hexValue).send();
