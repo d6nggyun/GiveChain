@@ -47,7 +47,7 @@ jobs:
   backend-cd:
     runs-on: ubuntu-latest
     needs: backend-ci
-    name: Deploy to EC2 (Blue/Green)
+    name: Deploy to EC2
 
     steps:
       - name: Checkout code
