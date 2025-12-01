@@ -5,6 +5,8 @@ import { ensureSepoliaNetwork } from "@/lib/network";
 import { getWeb3AuthProvider } from "@/lib/aaSdk";
 
 const DONATION_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DONATION_ADDRESS!;
+
+// 🔹 Sepolia RPC (프론트용, 조회용)
 const SEPOLIA_RPC_URL =
   process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://1rpc.io/sepolia";
 
@@ -75,5 +77,65 @@ export async function donateByWallet(amountEth: string, campaignId: number) {
     }
 
     throw new Error("기부 트랜잭션 전송에 실패했습니다.");
+  }
+}
+
+// 🔹 2) 특정 캠페인에 대한 해당 유저 기부액 조회
+export async function fetchUserDonation(
+  campaignId: number,
+  walletAddress: string
+) {
+  try {
+    const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
+
+    const contract = new ethers.Contract(
+      DONATION_CONTRACT_ADDRESS,
+      donationAbi.abi,
+      provider
+    );
+
+    const amount = await contract.getDonation(campaignId, walletAddress);
+    return ethers.formatEther(amount); // "0.004" 형식 문자열
+  } catch (e) {
+    console.error("[fetchUserDonation] error:", e);
+    return "0";
+  }
+}
+
+// 🔹 3) 캠페인별 총 기부액 조회
+export async function fetchCampaignTotal(campaignId: number) {
+  try {
+    const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
+
+    const contract = new ethers.Contract(
+      DONATION_CONTRACT_ADDRESS,
+      donationAbi.abi,
+      provider
+    );
+
+    const amount = await contract.getTotalDonationByCampaign(campaignId);
+    return ethers.formatEther(amount);
+  } catch (e) {
+    console.error("[fetchCampaignTotal] error:", e);
+    return "0";
+  }
+}
+
+// 🔹 4) 유저의 전체(모든 캠페인 합산) 기부액 조회
+export async function fetchUserTotalDonation(walletAddress: string) {
+  try {
+    const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
+
+    const contract = new ethers.Contract(
+      DONATION_CONTRACT_ADDRESS,
+      donationAbi.abi,
+      provider
+    );
+
+    const amount = await contract.getTotalDonation(walletAddress);
+    return ethers.formatEther(amount);
+  } catch (e) {
+    console.error("[fetchUserTotalDonation] error:", e);
+    return "0";
   }
 }
