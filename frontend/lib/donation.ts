@@ -11,28 +11,43 @@ const SEPOLIA_RPC_URL =
   process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
   "https://1rpc.io/sepolia";
 
-// 🔹 1) 기부 트랜잭션 (MetaMask 또는 Web3Auth)
+// 🔹 1) 기부 트랜잭션 (Web3Auth 우선, 없으면 MetaMask)
 export async function donateByWallet(amountEth: string, campaignId: number) {
   if (typeof window === "undefined") {
     throw new Error("클라이언트 환경에서만 기부가 가능합니다.");
   }
 
-  const hasMetaMask = !!(window as any).ethereum;
   let eip1193Provider: any = null;
 
-  // 1) MetaMask가 있으면 MetaMask 우선 사용
-  if (hasMetaMask && (window as any).ethereum.isMetaMask) {
-    await ensureSepoliaNetwork();
-    eip1193Provider = (window as any).ethereum;
-  } else {
-    // 2) MetaMask 없으면 Web3Auth provider 시도
-    eip1193Provider = await getWeb3AuthProvider();
+  // 1️⃣ Web3Auth provider 먼저 시도 (구글 로그인 시 여기로 옴)
+  eip1193Provider = await getWeb3AuthProvider();
+
+  // 2️⃣ Web3Auth가 없으면 MetaMask fallback
+  if (!eip1193Provider && (window as any).ethereum) {
+    const mm = (window as any).ethereum;
+
+    // MetaMask 인 경우에만 처리
+    if (mm.isMetaMask) {
+      try {
+        // 계정 연결 요청 (이걸 안 하면 지금처럼 "MetaMask is not connected" 에러)
+        await mm.request({ method: "eth_requestAccounts" });
+      } catch (e) {
+        console.error("[donateByWallet] MetaMask 계정 연결 실패:", e);
+        throw new Error("MetaMask 지갑 연결에 실패했습니다.");
+      }
+
+      // 네트워크 Sepolia로 맞추기
+      await ensureSepoliaNetwork();
+      eip1193Provider = mm;
+    }
   }
 
+  // 3️⃣ 둘 다 없으면 에러
   if (!eip1193Provider) {
-    throw new Error("지갑이 없습니다. 지갑을 연결한 뒤 다시 시도해 주세요.");
+    throw new Error("지갑이 없습니다. Web3Auth 로그인 또는 MetaMask 설치 후 다시 시도해 주세요.");
   }
 
+  // 4️⃣ ethers Provider/Signer 설정
   const provider = new ethers.BrowserProvider(eip1193Provider);
   const network = await provider.getNetwork();
 
@@ -69,20 +84,18 @@ export async function donateByWallet(amountEth: string, campaignId: number) {
   }
 }
 
-// 🔹 2) 특정 캠페인에 대한 해당 유저 기부액 조회
+// 아래 조회 함수들은 그대로 두면 됨
 export async function fetchUserDonation(
   campaignId: number,
   walletAddress: string
 ) {
   try {
     const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
-
     const contract = new ethers.Contract(
       DONATION_CONTRACT_ADDRESS,
       donationAbi.abi,
       provider
     );
-
     const amount = await contract.getDonation(campaignId, walletAddress);
     return ethers.formatEther(amount);
   } catch (e) {
@@ -91,17 +104,14 @@ export async function fetchUserDonation(
   }
 }
 
-// 🔹 3) 캠페인별 총 기부액 조회
 export async function fetchCampaignTotal(campaignId: number) {
   try {
     const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
-
     const contract = new ethers.Contract(
       DONATION_CONTRACT_ADDRESS,
       donationAbi.abi,
       provider
     );
-
     const amount = await contract.getTotalDonationByCampaign(campaignId);
     return ethers.formatEther(amount);
   } catch (e) {
@@ -110,17 +120,14 @@ export async function fetchCampaignTotal(campaignId: number) {
   }
 }
 
-// 🔹 4) 유저의 전체(모든 캠페인 합산) 기부액 조회
 export async function fetchUserTotalDonation(walletAddress: string) {
   try {
     const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
-
     const contract = new ethers.Contract(
       DONATION_CONTRACT_ADDRESS,
       donationAbi.abi,
       provider
     );
-
     const amount = await contract.getTotalDonation(walletAddress);
     return ethers.formatEther(amount);
   } catch (e) {

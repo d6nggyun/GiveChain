@@ -1,3 +1,5 @@
+// lib/network.ts
+
 export async function ensureSepoliaNetwork() {
   if (typeof window === "undefined" || !window.ethereum) {
     console.warn("MetaMask가 없습니다.");
