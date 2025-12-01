@@ -7,10 +7,11 @@ import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
 const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
 
 const SEPOLIA_RPC_URL =
-  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
-  "https://1rpc.io/sepolia"; 
+  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://1rpc.io/sepolia";
 
 let web3auth: Web3Auth | null = null;
+// 🔹 Web3Auth에서 받은 provider를 저장할 전역 변수
+let web3authProvider: any | null = null;
 
 export type LoginResult = {
   provider: string;
@@ -63,6 +64,9 @@ export const loginWithGoogle = async (): Promise<LoginResult> => {
     throw new Error("지갑 provider를 얻지 못했습니다.");
   }
 
+  // 🔹 전역에 Web3Auth provider 저장
+  web3authProvider = provider;
+
   const userInfo: any = await wa.getUserInfo();
   console.log("[Web3Auth] userInfo:", userInfo);
 
@@ -73,9 +77,7 @@ export const loginWithGoogle = async (): Promise<LoginResult> => {
   console.log("[Web3Auth] accounts:", accounts);
 
   const providerType =
-    userInfo.typeOfLogin ??
-    userInfo.loginType ??
-    "none";
+    userInfo.typeOfLogin ?? userInfo.loginType ?? "none";
 
   const providerUserId =
     userInfo.verifierId ??
@@ -96,6 +98,11 @@ export const loginWithGoogle = async (): Promise<LoginResult> => {
     email: userInfo.email ?? "",
     name: userInfo.name ?? "",
   };
+};
+
+// 🔹 다른 곳에서 Web3Auth provider를 가져가기 위한 함수
+export function getWeb3AuthProvider() {
+  return web3authProvider;
 }
 
 export async function disconnectWeb3() {
@@ -105,5 +112,8 @@ export async function disconnectWeb3() {
     }
   } catch (e) {
     console.error("[disconnectWeb3] Web3 로그아웃 실패:", e);
+  } finally {
+    // 🔹 provider도 비우기
+    web3authProvider = null;
   }
 }
