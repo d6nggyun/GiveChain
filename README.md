@@ -18,18 +18,28 @@ Frontend(Next.js) – Backend(Spring Boot) – Smart Contract(Solidity)가
 
 ---
 
-## 📱 서비스 화면
+## 📱 자료
 
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/2f4b8cdc-daa8-43ac-8bb7-661a3f04b86c" width="320"/>
+      <img src="https://github.com/user-attachments/assets/af1c2b7f-bce1-480b-a548-c7d235483102" width="450"/>
     </td>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/c139bb71-0dd7-4dad-8248-c75c2b780ccd" width="320"/>
+      <img src="https://github.com/user-attachments/assets/82e92e5f-d4f2-4913-bbff-57d8db122951" width="450"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/21720de5-34c5-4d5a-97cc-0e0fdc5b6130" width="450"/>
     </td>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/ad4d3ea0-8c9e-4abe-9d20-fae5afd64116" width="320"/>
+      <img src="https://github.com/user-attachments/assets/7cbb006f-3619-46f9-8b06-17456ab037d7" width="450"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="https://github.com/user-attachments/assets/321e012d-2d2e-4662-83d6-11aecfd8662c" width="450"/>
     </td>
   </tr>
 </table>
@@ -118,5 +128,3 @@ Frontend(Next.js) – Backend(Spring Boot) – Smart Contract(Solidity)가
 - Web3 기반 기부 플랫폼 MVP 구현 및 배포
 - 온체인 트랜잭션 → 서버 검증 → UI 반영까지 전체 흐름 정상 동작
 - 풀스택 구현을 통한 시스템 전체 구조 이해
-
-를 중심으로 설계된 프로젝트입니다.
